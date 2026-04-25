@@ -1,0 +1,188 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "The Power of Knowledge",
+      "image": "https://images.unsplash.com/photo-1544947950-fa07a98d237f",
+      "in_stock": true,
+      "description": "A journey through learning and personal growth...",
+      "currency": "USD",
+      "price": {
+        "cost_price": 10.00,
+        "regular_price": 20.00,
+        "discount_percent": 25,
+        "sale_price": 15.00
+      },
+      "category": {
+        "id": 1,
+        "title": "Self-Help"
+      }
+    },
+    {
+      "id": 2,
+      "name": "The Story of Batch",
+      "image": "https://images.unsplash.com/photo-1512820790803-83ca734da794",
+      "estimate_arrived": "Ships in 2–3 weeks",
+      "in_stock": false,
+      "description": "Exploring the history of industrial production and manufacturing cycles.",
+      "currency": "USD",
+      "price": {
+        "cost_price": 10.00,
+        "regular_price": 20.00,
+        "discount_percent": 25,
+        "sale_price": 15.00
+      },
+      "category": {
+        "id": 2,
+        "title": "Fiction"
+      }
+    },
+    {
+      "id": 3,
+      "name": "The Silent Echo",
+      "image": "https://images.unsplash.com/photo-1543002588-bfa74002ed7e",
+      "in_stock": true,
+      "description": "A gripping psychological thriller set in the heart of the Pacific Northwest.",
+      "currency": "USD",
+      "price": {
+        "cost_price": 6.50,
+        "regular_price": 18.00,
+        "discount_percent": 10,
+        "sale_price": 16.20
+      },
+      "category": {
+        "id": 2,
+        "title": "Fiction"
+      }
+    },
+    {
+      "id": 4,
+      "name": "Beyond the Stars",
+      "image": "https://images.unsplash.com/photo-1512820790803-83ca734da794",
+      "estimate_arrived": "Arrives tomorrow",
+      "in_stock": true,
+      "description": "An introductory guide to modern astrophysics and space exploration.",
+      "currency": "USD",
+      "price": {
+        "cost_price": 15.00,
+        "regular_price": 35.00,
+        "discount_percent": 20,
+        "sale_price": 28.00
+      },
+      "category": {
+        "id": 3,
+        "title": "Science"
+      }
+    },
+    {
+      "id": 5,
+      "name": "Culinary Masterclass",
+      "image": "https://images.unsplash.com/photo-1544947950-fa07a98d237f",
+      "in_stock": true,
+      "description": "Essential techniques for the home cook, featuring 100 classic recipes.",
+      "currency": "USD",
+      "price": {
+        "cost_price": 12.00,
+        "regular_price": 40.00,
+        "discount_percent": 30,
+        "sale_price": 28.00
+      },
+      "category": {
+        "id": 1,
+        "title": "Self-Help"
+      }
+    },
+    {
+      "id": 11,
+      "name": "The Digital Frontier",
+      "image": "https://images.unsplash.com/photo-1543002588-bfa74002ed7e",
+      "in_stock": true,
+      "description": "Understanding the impact of artificial intelligence on modern society.",
+      "currency": "USD",
+      "price": {
+        "cost_price": 14.00,
+        "regular_price": 32.00,
+        "discount_percent": 15,
+        "sale_price": 27.20
+      },
+      "category": {
+        "id": 3,
+        "title": "Science"
+      }
+    },
+    {
+      "id": 12,
+      "name": "Whispers of the Past",
+      "image": "https://images.unsplash.com/photo-1543002588-bfa74002ed7e",
+      "estimate_arrived": "Arrives in 2 days",
+      "in_stock": true,
+      "description": "An award-winning historical fiction novel set during the Renaissance.",
+      "currency": "USD",
+      "price": {
+        "cost_price": 7.50,
+        "regular_price": 22.00,
+        "discount_percent": 50,
+        "sale_price": 11.00
+      },
+      "category": {
+        "id": 2,
+        "title": "Fiction"
+      }
+    },
+    {
+      "id": 13,
+      "name": "Financial Freedom Blueprint",
+      "image": "https://images.unsplash.com/photo-1512820790803-83ca734da794",
+      "in_stock": true,
+      "description": "A comprehensive guide to investing and long-term wealth management.",
+      "currency": "USD",
+      "price": {
+        "cost_price": 11.00,
+        "regular_price": 28.00,
+        "discount_percent": 0,
+        "sale_price": 28.00
+      },
+      "category": {
+        "id": 1,
+        "title": "Self-Help"
+      }
+    },
+    {
+      "id": 14,
+      "name": "The Art of Mindful Living",
+      "image": "https://images.unsplash.com/photo-1544947950-fa07a98d237f",
+      "estimate_arrived": "Ships in 1 week",
+      "in_stock": false,
+      "description": "Daily practices for reducing stress and finding clarity in a busy world.",
+      "currency": "USD",
+      "price": {
+        "cost_price": 5.00,
+        "regular_price": 19.99,
+        "discount_percent": 10,
+        "sale_price": 17.99
+      },
+      "category": {
+        "id": 1,
+        "title": "Self-Help"
+      }
+    },
+    {
+      "id": 15,
+      "name": "Oceanic Mysteries",
+      "image": "https://images.unsplash.com/photo-1543002588-bfa74002ed7e",
+      "in_stock": true,
+      "description": "Deep-sea exploration and the biology of undiscovered marine life.",
+      "currency": "USD",
+      "price": {
+        "cost_price": 18.00,
+        "regular_price": 45.00,
+        "discount_percent": 20,
+        "sale_price": 36.00
+      },
+      "category": {
+        "id": 3,
+        "title": "Science"
+      }
+    }
+  ]
+}

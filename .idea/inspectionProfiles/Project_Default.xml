@@ -1,0 +1,31 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <list>
+          <option value="asgiref" />
+          <option value="bcrypt" />
+          <option value="certifi" />
+          <option value="charset-normalizer" />
+          <option value="Django" />
+          <option value="django-cors-headers" />
+          <option value="djangorestframework" />
+          <option value="djangorestframework_simplejwt" />
+          <option value="gunicorn" />
+          <option value="idna" />
+          <option value="mysqlclient" />
+          <option value="pillow" />
+          <option value="PyJWT" />
+          <option value="PyMySQL" />
+          <option value="python-dateutil" />
+          <option value="requests" />
+          <option value="six" />
+          <option value="sqlparse" />
+          <option value="typing_extensions" />
+          <option value="urllib3" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>

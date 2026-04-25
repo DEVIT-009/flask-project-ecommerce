@@ -1,0 +1,22 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "title": "Self-Help",
+      "icon": "💡",
+      "description": "Books that improve mindset, productivity, and personal growth."
+    },
+    {
+      "id": 2,
+      "title": "Fiction",
+      "icon": "📖",
+      "description": "Imaginative stories, novels, and creative storytelling works."
+    },
+    {
+      "id": 3,
+      "title": "Science",
+      "icon": "🔬",
+      "description": "Educational content about physics, biology, space, and technology."
+    }
+  ]
+}

@@ -1,0 +1,185 @@
+<div class="mx-auto">
+
+    <h1 class="text-3xl font-bold mb-6">Shopping Cart</h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Cart Items -->
+        <div class="lg:col-span-2 space-y-4 overflow-scroll max-h-[150vh]">
+
+            <!-- Item -->
+            <div class="card bg-base-200 border-b shadow-md">
+                <div class="card-body flex flex-row gap-4 items-center">
+
+                    <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f"
+                         class="w-24 h-32 object-cover rounded">
+
+                    <div class="flex-1">
+
+                        <h2 class="font-semibold text-lg">
+                            The Power of Knowledge
+                        </h2>
+
+                        <p class="text-sm text-gray-500">
+                            A journey through learning and personal growth...
+                        </p>
+
+                        <div class="mt-2">
+
+                            <span class="text-lg font-bold text-primary">
+                                $19.99
+                            </span>
+
+                            <span class="line-through text-gray-400 ml-2">
+                                $24.99
+                            </span>
+
+                            <span class="badge badge-success ml-2">
+                                -20%
+                            </span>
+
+                        </div>
+
+                        <p class="text-success text-sm mt-1">
+                            In Stock
+                        </p>
+
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="flex items-center gap-2">
+
+                        <button class="btn btn-sm">-</button>
+                        <input type="number" value="1" class="input input-sm w-16 text-center">
+                        <button class="btn btn-sm">+</button>
+
+                    </div>
+
+                    <!-- Remove -->
+                    <button class="btn btn-error btn-sm">
+                        Remove
+                    </button>
+
+                </div>
+            </div>
+
+            <!-- Item -->
+            <div class="card bg-base-200 border-b shadow-md">
+                <div class="card-body flex flex-row gap-4 items-center">
+
+                    <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f"
+                         class="w-24 h-32 object-cover rounded">
+
+                    <div class="flex-1">
+
+                        <h2 class="font-semibold text-lg">
+                            The Power of Knowledge
+                        </h2>
+
+                        <p class="text-sm text-gray-500">
+                            A journey through learning and personal growth...
+                        </p>
+
+                        <div class="mt-2">
+
+                            <span class="text-lg font-bold text-primary">
+                                $19.99
+                            </span>
+
+                            <span class="line-through text-gray-400 ml-2">
+                                $24.99
+                            </span>
+
+                            <span class="badge badge-success ml-2">
+                                -20%
+                            </span>
+
+                        </div>
+
+                        <p class="text-success text-sm mt-1">
+                            In Stock
+                        </p>
+
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="flex items-center gap-2">
+
+                        <button class="btn btn-sm">-</button>
+                        <input type="number" value="1" class="input input-sm w-16 text-center">
+                        <button class="btn btn-sm">+</button>
+
+                    </div>
+
+                    <!-- Remove -->
+                    <button class="btn btn-error btn-sm">
+                        Remove
+                    </button>
+
+                </div>
+            </div>
+
+            <!-- Item -->
+            <div class="card bg-base-200 border-b shadow-md">
+                <div class="card-body flex flex-row gap-4 items-center">
+
+                    <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f"
+                         class="w-24 h-32 object-cover rounded">
+
+                    <div class="flex-1">
+
+                        <h2 class="font-semibold text-lg">
+                            The Power of Knowledge
+                        </h2>
+
+                        <p class="text-sm text-gray-500">
+                            A journey through learning and personal growth...
+                        </p>
+
+                        <div class="mt-2">
+
+                            <span class="text-lg font-bold text-primary">
+                                $19.99
+                            </span>
+
+                            <span class="line-through text-gray-400 ml-2">
+                                $24.99
+                            </span>
+
+                            <span class="badge badge-success ml-2">
+                                -20%
+                            </span>
+
+                        </div>
+
+                        <p class="text-success text-sm mt-1">
+                            In Stock
+                        </p>
+
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="flex items-center gap-2">
+
+                        <button class="btn btn-sm">-</button>
+                        <input type="number" value="1" class="input input-sm w-16 text-center">
+                        <button class="btn btn-sm">+</button>
+
+                    </div>
+
+                    <!-- Remove -->
+                    <button class="btn btn-error btn-sm">
+                        Remove
+                    </button>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Order Summary -->
+        {% include 'components/order_summary.html' %}
+
+    </div>
+
+</div>

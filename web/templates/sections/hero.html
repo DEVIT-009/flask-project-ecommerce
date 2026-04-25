@@ -1,0 +1,78 @@
+<section class="bg-linear-to-br from-base-300 via-base-300 to-base-100 mb-8">
+    <div class="relative min-h-[90vh] flex items-center md:px-8">
+
+        <!-- Background Image -->
+        <div class="absolute inset-0">
+            <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794"
+                 class="w-full h-full object-cover"
+                 alt="Library">
+            <div class="absolute inset-0 bg-black/70"></div>
+        </div>
+
+        <!-- Content -->
+        <div class="relative container mx-auto grid md:grid-cols-2 gap-12 items-end">
+            <!-- LEFT TEXT -->
+            <div class="text-white">
+                <h1 class="text-4xl md:text-5xl font-bold leading-snug">
+                    Helping You Discover
+                    <br>
+                    <span class="text-primary">Grow Through Books</span>
+                </h1>
+            </div>
+
+            <!-- RIGHT DESCRIPTION -->
+            <div class="text-gray-200 text-lg hidden md:block">
+                In today’s fast-moving world, finding the right book
+                can inspire growth, spark creativity, and expand
+                knowledge. Whether you're reading for fun or learning
+                something new — we make discovery simple.
+            </div>
+        </div>
+
+        <!-- FILTER SEARCH BAR -->
+        <div class="absolute -bottom-10 left-0 right-0 -translate-y-36 px-8">
+            <div class="container mx-auto bg-base-100 shadow-2xl rounded-2xl grid grid-cols-2 md:grid-cols-4 overflow-hidden">
+
+                <!-- Category -->
+                <div class="p-6 border-r">
+                    <label class="block text-sm font-semibold mb-1">Category</label>
+                    <select class="w-full bg-transparent focus:outline-none">
+                        <option>All Categories</option>
+                        <option>Fiction</option>
+                        <option>Science</option>
+                        <option>Technology</option>
+                        <option>Business</option>
+                    </select>
+                </div>
+
+                <!-- Price -->
+                <div class="p-6 md:border-r">
+                    <label class="block text-sm font-semibold mb-1">Price Range</label>
+                    <select class="w-full bg-transparent focus:outline-none">
+                        <option>$0 - $10</option>
+                        <option>$10 - $30</option>
+                        <option>$30 - $50</option>
+                    </select>
+                </div>
+
+                <!-- Author -->
+                <div class="p-6 border-r">
+                    <label class="block text-sm font-semibold mb-1">Author</label>
+                    <input type="text"
+                           placeholder="Search author"
+                           class="w-full bg-transparent focus:outline-none">
+                </div>
+
+                <!-- Search Button -->
+                <div class="w-full h-full flex items-center justify-center bg-primary ">
+                    <button class="w-full h-full flex items-center justify-center btn btn-gradient btn-primary">
+                        <span class="material-symbols-outlined font-bold" style="font-size: 48px;">
+                            search
+                        </span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>

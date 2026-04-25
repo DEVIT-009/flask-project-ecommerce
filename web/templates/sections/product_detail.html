@@ -1,0 +1,92 @@
+
+<div class="mx-auto space-y-8">
+
+    {% if product %}
+
+    <!-- Main product card -->
+    <div class="card bg-base-200 ring ring-base-content/30">
+        <div class="card-body">
+            <div class="flex max-md:flex-col gap-8 justify-between">
+
+                <!-- Product image -->
+                <figure class="rounded-box overflow-hidden md:w-1/2">
+                    <img
+                        src="{{ product.image }}"
+                        alt="{{ product.name }}"
+                        class="w-full h-full object-cover aspect-square"
+                    >
+                </figure>
+
+                <!-- Product info -->
+                <div class="flex flex-col self-start gap-0 md:w-1/2">
+
+                <!-- Title & category -->
+                <div class="mb-4">
+                    <h1 class="text-2xl md:text-3xl font-bold leading-tight">{{ product.name }}</h1>
+                    <p class="text-base-content/50 text-sm mt-1">
+                        {{ product.category.title }}
+                    </p>
+                </div>
+
+                <div class="divider my-0"></div>
+
+                <!-- Description -->
+                <p class="text-base-content/70 leading-relaxed text-sm py-4">
+                    {{ product.description }}
+                </p>
+
+                <div class="divider my-0"></div>
+
+                <!-- Stock status -->
+                <div class="py-4 flex items-center gap-3">
+                    <span class="text-base-content/50 text-sm w-20 shrink-0">Availability</span>
+                    {% if product.in_stock %}
+                        <span class="badge badge-success badge-soft rounded-full">In Stock</span>
+                    {% else %}
+                        <div class="flex flex-col gap-1">
+                            <span class="badge badge-error badge-soft rounded-full w-fit">Out of Stock</span>
+                            {% if product.estimate_arrived %}
+                                <span class="text-base-content/40 text-xs">
+                                    Est. arrival: {{ product.estimate_arrived }}
+                                </span>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="divider my-0"></div>
+
+                <!-- Price block -->
+                <div class="py-4 flex flex-col gap-1">
+                    <div class="flex items-baseline gap-3 flex-wrap">
+                        <span class="text-3xl font-bold text-error">
+                            {{ product.currency }} {{ product.price.sale_price }}
+                        </span>
+                        <span class="text-base-content/30 line-through text-base">
+                            {{ product.currency }} {{ product.price.regular_price }}
+                        </span>
+                    </div>
+                    <div>
+                        <span class="badge badge-warning badge-soft rounded-full text-xs">
+                            Save {{ product.price.discount_percent }}%
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+
+    <!-- Not found state -->
+    <div class="card bg-base-100 shadow-md">
+        <div class="card-body items-center text-center py-16">
+            <h2 class="card-title text-xl text-base-content/60">Product not found</h2>
+        </div>
+    </div>
+
+    {% endif %}
+
+</div>

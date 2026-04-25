@@ -1,0 +1,17 @@
+{% extends "index.html" %}
+
+{% block title %} Bookit - Product Detail {% endblock %}
+
+{% block content %}
+
+    <div class="px-16 space-y-8 mt-10">
+        {% include "sections/product_detail.html" %}
+
+        <h2 class="text-4xl font-extrabold text-center mb-14 text-primary">
+            ❤️ Other Book You Might LOVE
+        </h2>
+
+        {% include "components/product_list.html" %}
+    </div>
+
+{% endblock %}

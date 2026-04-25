@@ -1,0 +1,96 @@
+<div class="w-full relative overflow-hidden">
+
+    <!-- Background decoration -->
+    <div class="absolute inset-0 bg-linear-to-br from-base-100/60 via-base-100 to-base-50"></div>
+    <div class="absolute -top-10 -right-10 w-64 h-64 rounded-full bg-indigo-400/20 blur-3xl"></div>
+    <div class="absolute -bottom-10 -left-10 w-48 h-48 rounded-full bg-purple-400/20 blur-2xl"></div>
+
+    <!-- Main content row -->
+    <div class="relative px-10 py-10 flex items-center justify-between gap-8">
+
+        <!-- Left: Text -->
+        <div class="flex flex-col gap-3">
+
+            <!-- Breadcrumb -->
+            <nav class="flex items-center gap-1.5 text-xs text-gray-400 uppercase tracking-widest">
+                <a href="/" class="hover:text-indigo-500 cursor-pointer transition-colors">Home</a>
+                <span class="mat-icon" style="font-size:14px;">chevron_right</span>
+                <a href="/store" class="hover:text-indigo-500 cursor-pointer transition-colors">Store</a>
+                <span class="mat-icon" style="font-size:14px;">chevron_right</span>
+                <span class="text-indigo-500">Books</span>
+            </nav>
+
+            <!-- Heading -->
+            <h1 class="text-5xl font-bold text-base-content tracking-tight leading-tight">
+                Explore <span class="text-indigo-500">Books</span>
+            </h1>
+
+            <!-- Subtitle -->
+            <p class="text-gray-400 text-sm max-w-sm leading-relaxed">
+                Discover your next great read — from timeless classics to modern bestsellers.
+            </p>
+
+            <!-- Stats pills -->
+            <div class="flex items-center gap-3 mt-2 flex-wrap">
+
+                <div class="flex items-center gap-1.5 bg-white/70 card-ring px-3 py-1.5 rounded-full text-xs text-gray-500 backdrop-blur-sm">
+                    <span class="mat-icon text-indigo-500" style="font-size:15px;">auto_stories</span>
+                    <span><strong class="text-gray-800">1,240</strong> Books</span>
+                </div>
+
+                <div class="flex items-center gap-1.5 bg-white/70 card-ring px-3 py-1.5 rounded-full text-xs text-gray-500 backdrop-blur-sm">
+                    <span class="mat-icon text-indigo-500" style="font-size:15px;">category</span>
+                    <span><strong class="text-gray-800">32</strong> Genres</span>
+                </div>
+
+                <div class="flex items-center gap-1.5 bg-indigo-50 ring ring-indigo-300/50 px-3 py-1.5 rounded-full text-xs text-indigo-600 backdrop-blur-sm">
+                    <span class="mat-icon" style="font-size:15px;">local_offer</span>
+                    <span><strong>15%</strong> Off this week</span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Right: Decorative book stack -->
+        <div class="hidden lg:flex items-end gap-3 pr-6 select-none">
+
+            <div class="h-36 w-14 bg-indigo-500/80 -rotate-6 rounded-sm shadow-xl flex items-center justify-center transition-transform hover:scale-105 cursor-default">
+                <span class="text-white/80 text-xs font-bold tracking-widest"
+                      style="writing-mode:vertical-rl; text-orientation:mixed;">Fiction</span>
+            </div>
+
+            <div class="h-44 w-14 bg-purple-500/70 rotate-0 rounded-sm shadow-xl flex items-center justify-center transition-transform hover:scale-105 cursor-default">
+                <span class="text-white/80 text-xs font-bold tracking-widest"
+                      style="writing-mode:vertical-rl; text-orientation:mixed;">Science</span>
+            </div>
+
+            <div class="h-32 w-14 bg-amber-400/70 rotate-6 rounded-sm shadow-xl flex items-center justify-center transition-transform hover:scale-105 cursor-default">
+                <span class="text-white/80 text-xs font-bold tracking-widest"
+                      style="writing-mode:vertical-rl; text-orientation:mixed;">History</span>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Bottom sort bar -->
+    <div class="relative border-t border-gray-200 px-10 py-3 flex items-center justify-between bg-base-content backdrop-blur-sm">
+
+        <p class="text-xs text-gray-400">
+            Showing <strong class="text-gray-800">1,240</strong> results
+        </p>
+
+        <div class="flex items-center gap-2">
+            <span class="text-xs text-gray-400">Sort by:</span>
+            <select class="bg-transparent text-gray-800 text-xs rounded-lg px-2 py-1 outline-none cursor-pointer card-ring focus:ring-2 focus:ring-indigo-300">
+                <option>Most Popular</option>
+                <option>Newest First</option>
+                <option>Price: Low to High</option>
+                <option>Price: High to Low</option>
+                <option>Top Rated</option>
+            </select>
+        </div>
+
+    </div>
+
+</div>

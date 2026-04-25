@@ -1,0 +1,40 @@
+<div class="card bg-base-200 shadow-md sticky top-32 ring ring-base-content/50 rounded-box self-start">
+
+    <div class="card-body"> 
+
+        <h2 class="card-title">
+            Order Summary
+        </h2>
+
+        <div class="space-y-2 mt-4">
+
+            <div class="flex justify-between">
+                <span>Subtotal</span>
+                <span>$39.98</span>
+            </div>
+
+            <div class="flex justify-between">
+                <span>Shipping</span>
+                <span>$5.00</span>
+            </div>
+
+            <div class="divider"></div>
+
+                <div class="flex justify-between font-bold text-lg">
+                    <span>Total</span>
+                    <span>$44.98</span>
+                </div>
+
+            </div>
+
+            <a href="{{ url_for('web_routes.checkout') }}" class="btn btn-primary w-full mt-6">
+                Proceed to Checkout
+            </a>
+
+            <a href="{{ url_for('web_routes.product_list') }}" class="btn btn-outline w-full mt-2">
+                Continue Shopping
+            </a>
+
+        </div>
+
+    </div>

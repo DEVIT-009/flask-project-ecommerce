@@ -1,0 +1,29 @@
+<div class="px-16 py-5 navbar sticky top-0 right-0 z-50">
+    <div class="flex-1 relative">
+        <a href="{{ url_for('web_routes.index') }}" class="flex items-center gap-2">
+            <img 
+                class="w-20 absolute -top-3 rounded-lg ring ring-base-content/50" 
+                src="{{ url_for('static', filename='images/loukbooks.png') }}" alt="">
+        </a>
+    </div>
+    <div class="flex gap-8 items-center">
+        <a href="{{ url_for('web_routes.index') }}"
+           class="link link-animated text-base-content transition {{ 'active' if request.endpoint == "web_routes.index" else '' }}">
+            Home
+        </a>
+        <a href="{{ url_for('web_routes.product_list') }}"
+           class="link link-animated text-base-content hover:text-primary transition {{ 'active' if request.endpoint == "product_list" else '' }}">
+            Books
+        </a>
+        <a href="{{ url_for('web_routes.cart') }}"
+           class="link link-animated text-base-content hover:text-primary transition {{ 'active' if request.endpoint == "cart" else '' }}">
+            Cart
+        </a>
+        <div class="join">
+            <button class="join-item btn btn-primary btn-gradient">
+                <span class="material-symbols-outlined">login</span>
+                Sign in
+            </button>
+        </div>
+    </div>
+</div>

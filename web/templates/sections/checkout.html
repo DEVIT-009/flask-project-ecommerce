@@ -1,0 +1,195 @@
+<div class="mx-auto">
+
+    <h1 class="text-3xl font-bold mb-6">Checkout</h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- ================= LEFT SIDE ================= -->
+        <div class="lg:col-span-2 space-y-6">
+
+            <!-- Customer Info -->
+            <div class="card bg-base-100 shadow">
+                <div class="card-body">
+
+                    <h2 class="card-title">Customer Information</h2>
+
+                    <input class="input w-full mt-3" placeholder="Full Name">
+                    <input class="input w-full mt-3" placeholder="Email">
+                    <input class="input w-full mt-3" placeholder="Phone Number">
+
+                </div>
+            </div>
+
+            <!-- Shipping Address -->
+            <div class="card bg-base-100 shadow">
+                <div class="card-body">
+
+                    <h2 class="card-title">Shipping Address</h2>
+
+                    <input class="input w-full mt-3" placeholder="Country">
+                    <input class="input w-full mt-3" placeholder="City">
+                    <input class="input w-full mt-3" placeholder="Street Address">
+                    <input class="input w-full mt-3" placeholder="Postal Code (optional)">
+
+                </div>
+            </div>
+
+            <!-- Shipping Method -->
+            <div class="card bg-base-100 shadow">
+                <div class="card-body">
+
+                    <h2 class="card-title">Shipping Method</h2>
+
+                    <label class="flex items-center gap-3 mt-3">
+                        <input type="radio" name="shipping" class="radio" checked>
+                        <span>Standard Shipping — $5 (3–5 days)</span>
+                    </label>
+
+                    <label class="flex items-center gap-3 mt-2">
+                        <input type="radio" name="shipping" class="radio">
+                        <span>Express Shipping — $15 (1–2 days)</span>
+                    </label>
+
+                </div>
+            </div>
+
+            <!-- Payment -->
+            <div class="card bg-base-100 shadow">
+                <div class="card-body">
+
+                    <h2 class="card-title">Payment Method</h2>
+
+                    <label class="flex items-center gap-3 mt-3">
+                        <input type="radio" name="payment" class="radio" checked>
+                        <span>Credit / Debit Card</span>
+                    </label>
+
+                    <label class="flex items-center gap-3 mt-2">
+                        <input type="radio" name="payment" class="radio">
+                        <span>Cash on Delivery</span>
+                    </label>
+
+                    <!-- Card inputs -->
+                    <div class="grid grid-cols-2 gap-3 mt-4">
+
+                        <input class="input col-span-2" placeholder="Card Number">
+                        <input class="input" placeholder="MM/YY">
+                        <input class="input" placeholder="CVC">
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ================= RIGHT SIDE ================= -->
+        <div class="">
+
+            <div class="card bg-base-200 ring ring-base-content/50 shadow sticky top-32">
+
+                <div class="card-body">
+
+                    <h2 class="card-title">Order Summary</h2>
+
+                    <!-- Product -->
+                    <div class="flex justify-between mt-4">
+                        <span>The Power of Knowledge x2</span>
+                        <span>$39.98</span>
+                    </div>
+
+                    <div class="flex justify-between">
+                        <span>The Story of Batch</span>
+                        <span>$35.99</span>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="flex justify-between">
+                        <span>Subtotal</span>
+                        <span>$75.97</span>
+                    </div>
+
+                    <div class="flex justify-between">
+                        <span>Shipping</span>
+                        <span>$5.00</span>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="flex justify-between font-bold text-lg">
+                        <span>Total</span>
+                        <span>$80.97</span>
+                    </div>
+
+                    <button type="button" class="btn btn-primary w-full mt-6" aria-haspopup="dialog" aria-expanded="false" aria-controls="qr-modal" data-overlay="#qr-modal">
+                        Pay
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- QR Modal Moved Outside Layout -->
+    <div id="qr-modal" class="overlay modal overlay-open:opacity-100 overlay-open:duration-300 modal-middle hidden" role="dialog" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content relative z-50 overflow-hidden rounded-2xl border border-base-content/10 bg-base-100 w-full max-w-sm p-0">
+
+            <!-- teal accent bar -->
+            <div class="h-1 w-full" style="background: linear-gradient(90deg,#1D9E75,#5DCAA5,#9FE1CB);"></div>
+
+            <!-- header -->
+            <div class="flex items-center justify-between px-5 pt-5">
+                <div>
+                <p class="text-xs uppercase tracking-widest text-base-content/40 font-medium">Secure Payment</p>
+                <h3 class="text-lg font-medium mt-0.5">Scan to Pay</h3>
+                </div>
+                <button type="button"
+                    class="btn btn-text btn-circle btn-sm"
+                    aria-label="Close"
+                    data-overlay="#qr-modal">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <!-- body -->
+            <div class="flex flex-col items-center gap-4 px-5 pb-5 pt-4">
+
+                <!-- QR image -->
+                <div class="bg-base-200 rounded-xl p-3.5 border border-base-content/10">
+                <img
+                    src="{{ url_for('static', filename='images/qr.jpeg') }}"
+                    alt="Payment QR Code"
+                    class="w-72 h-72 object-contain"
+                    style="image-rendering: pixelated;"
+                >
+                </div>
+
+                <!-- amount -->
+                <div class="w-full border-t border-base-content/10 pt-4 text-center">
+                <p class="text-xs text-base-content/40 tracking-wide mb-0.5">Amount due</p>
+                <p class="text-4xl font-medium tracking-tight">
+                    $80<span class="text-2xl text-base-content/50">.97</span>
+                </p>
+                </div>
+
+                <!-- status strip -->
+                <div class="flex items-center gap-2 w-full bg-base-200 rounded-lg px-4 py-2.5">
+                <span class="icon-[tabler--clock] size-3.5 text-success shrink-0"></span>
+                <span class="text-xs text-base-content/60">
+                    Expires in <strong class="text-base-content font-medium">14:32</strong>
+                </span>
+                <span class="ml-auto text-xs font-medium px-2 py-0.5 rounded-full bg-success/10 text-success">
+                    Active
+                </span>
+                </div>
+
+            </div>
+            </div>
+        </div>
+    </div>
+
+</div>

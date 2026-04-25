@@ -1,0 +1,128 @@
+<!-- templates/filter_book.html -->
+<div class="w-full bg-base-200 ring ring-base-content/50 p-4 rounded-box sticky top-32">
+
+    <form method="GET" action="{{ url_for('web_routes.product_list') }}">
+
+        <!-- Header -->
+        <div class="flex justify-between mb-4">
+            <h2 class="text-xl font-semibold">Filter</h2>
+
+            <a href="{{ url_for('web_routes.product_list') }}"
+               class="text-primary hover:underline">
+                Clear All
+            </a>
+        </div>
+
+        <hr class="mb-4">
+
+        <!-- Grid -->
+        <div class="grid grid-cols-2 gap-x-6 gap-y-0 md:grid-cols-1">
+
+            <!-- CATEGORY -->
+            <div class="mb-5">
+                <h3 class="font-semibold mb-2">Category</h3>
+
+                <select
+                    name="category_title"
+                    class="select select-bordered w-full"
+                    onchange="this.form.submit()"
+                >
+                    <option disabled selected>All Categories</option>
+
+                    {% for c in categories %}
+                    <option value="{{ c.title }}"
+                        {% if selected_category_title == c.title %}selected{% endif %}>
+                        {{ c.icon }} {{ c.title }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- GENRE (SELECT) -->
+            <div class="mb-5">
+                <h3 class="font-semibold mb-2">Genre</h3>
+
+                <select
+                    name="genre"
+                    class="select select-bordered w-full"
+                >
+                    <option selected disabled>All Genres</option>
+
+                    {% for g in genre_list %}
+                    <option value="{{ g }}"
+                        {% if request.args.get('genre') == g %}selected{% endif %}>
+                        {{ g|capitalize }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- AUTHOR (MULTI SELECT) -->
+            <div class="mb-5">
+              <h3 class="font-semibold mb-2">Author</h3>
+              <div class="space-y-2">
+                <select
+                    name="author"
+                    class="select select-bordered w-full max-w-xs"
+                >
+                  <option selected disabled>All Authors</option>
+
+                  {% for author in author_list %}
+                    <option
+                      value="{{ author }}"
+                      {% if author == request.args.get('authors') %}selected{% endif %}
+                    >
+                      {{ author }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <hr class="col-span-2 md:col-span-1 mb-4 hidden md:block">
+
+            <!-- FORMAT -->
+            <div class="mb-5">
+                <h3 class="font-semibold mb-2">Format</h3>
+
+                <div class="space-y-2">
+                    {% for f in format_list %}
+                    <label class="flex gap-3 items-center cursor-pointer">
+                        <input
+                            type="checkbox"
+                            name="format"
+                            value="{{ f }}"
+                            class="checkbox checkbox-primary"
+                            {% if f in request.args.getlist('format') %}checked{% endif %}
+                        >
+                        {{ f }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- RATING -->
+            <div class="mb-5">
+                <h3 class="font-semibold mb-2">Rating</h3>
+
+                <div class="space-y-2">
+                    {% for r in [5,4,3,2] %}
+                    <label class="flex gap-3 items-center cursor-pointer">
+                        <input
+                            type="radio"
+                            name="rating"
+                            value="{{ r }}"
+                            class="radio radio-primary"
+                            {% if request.args.get('rating') == r|string %}checked{% endif %}
+                        >
+                        {{ r }}★ & up
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+    </form>
+
+</div>

@@ -1,0 +1,22 @@
+{
+  "name": "flask-mvc-api-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tailwindcss -i web/static/css/input.css -o web/static/css/index.css --watch",
+    "build": "tailwindcss -i web/static/css/input.css -o web/static/css/index.css --minify"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.18",
+    "tailwindcss": "^4.1.18"
+  },
+  "dependencies": {
+    "flyonui": "^2.4.1"
+  }
+}

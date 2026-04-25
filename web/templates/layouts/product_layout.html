@@ -1,0 +1,28 @@
+{% extends "index.html" %}
+
+{% block title %} Bookit - Product Listing {% endblock %}
+
+{% block content %}
+
+    <div class="px-16 space-y-8 mt-10 grid grid-cols-5 gap-4">
+
+        <div class="hidden md:block col-span-5">
+
+            <!-- ================= PRODUCT HEADER ================= -->
+            {% include "components/product_header.html" %}
+
+        </div>
+
+        <div class="col-span-5 md:col-span-2 lg:col-span-1">
+            <!-- ================= FEATURED BOOKS ================= -->
+            {% include "components/filter_product.html" %}
+        </div>
+
+        <div class="col-span-5 md:col-span-3 lg:col-span-4">
+            <!-- ================= FEATURED BOOKS ================= -->
+            {% include "sections/top_sell_product.html" %}
+        </div>
+
+    </div>
+
+{% endblock %}
