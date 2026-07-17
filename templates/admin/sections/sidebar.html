@@ -1,0 +1,121 @@
+<!-- ========================= ADMIN SIDEBAR ========================= -->
+<aside id="admin-sidebar"
+       class="w-64 bg-base-100 border-r border-base-content/10 flex flex-col h-full transition-all duration-300 shrink-0">
+
+    <!-- Brand / Logo -->
+    <div class="flex items-center gap-3 px-6 py-5 border-b border-base-content/10">
+        <div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-md shadow-primary/40">
+            <span class="material-symbols-outlined text-primary-content text-[18px]">auto_stories</span>
+        </div>
+        <div>
+            <span class="text-base font-bold tracking-tight text-base-content">Bookit</span>
+            <p class="text-[10px] text-base-content/40 uppercase tracking-widest">Admin Panel</p>
+        </div>
+    </div>
+
+    <!-- Nav Menu -->
+    <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+
+        <!-- Section: Main -->
+        <p class="text-[9px] font-bold uppercase tracking-widest text-base-content/30 px-3 mb-2 mt-1">Main</p>
+
+        <a href="{{ url_for('admin_routes.dashboard') }}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
+                  {{ 'bg-primary/10 text-primary' if request.endpoint == 'admin_routes.dashboard' else 'text-base-content/70 hover:bg-base-200 hover:text-base-content' }}">
+            <span class="material-symbols-outlined text-[20px]">dashboard</span>
+            Overview
+        </a>
+
+        <a href="#"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
+                  text-base-content/70 hover:bg-base-200 hover:text-base-content">
+            <span class="material-symbols-outlined text-[20px]">bar_chart</span>
+            Analytics
+            <span class="ml-auto badge badge-primary badge-sm">New</span>
+        </a>
+
+        <!-- Section: Catalog -->
+        <p class="text-[9px] font-bold uppercase tracking-widest text-base-content/30 px-3 mb-2 mt-4">Catalog</p>
+
+        <a href="#"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
+                  text-base-content/70 hover:bg-base-200 hover:text-base-content">
+            <span class="material-symbols-outlined text-[20px]">menu_book</span>
+            Books
+        </a>
+
+        <a href="#"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
+                  text-base-content/70 hover:bg-base-200 hover:text-base-content">
+            <span class="material-symbols-outlined text-[20px]">category</span>
+            Categories
+        </a>
+
+        <a href="#"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
+                  text-base-content/70 hover:bg-base-200 hover:text-base-content">
+            <span class="material-symbols-outlined text-[20px]">sell</span>
+            Pricing
+        </a>
+
+        <!-- Section: Orders -->
+        <p class="text-[9px] font-bold uppercase tracking-widest text-base-content/30 px-3 mb-2 mt-4">Commerce</p>
+
+        <a href="#"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
+                  text-base-content/70 hover:bg-base-200 hover:text-base-content">
+            <span class="material-symbols-outlined text-[20px]">shopping_bag</span>
+            Orders
+            <span class="ml-auto badge badge-error badge-sm">12</span>
+        </a>
+
+        <a href="#"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
+                  text-base-content/70 hover:bg-base-200 hover:text-base-content">
+            <span class="material-symbols-outlined text-[20px]">people</span>
+            Customers
+        </a>
+
+        <a href="#"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
+                  text-base-content/70 hover:bg-base-200 hover:text-base-content">
+            <span class="material-symbols-outlined text-[20px]">rate_review</span>
+            Reviews
+        </a>
+
+        <!-- Section: Settings -->
+        <p class="text-[9px] font-bold uppercase tracking-widest text-base-content/30 px-3 mb-2 mt-4">System</p>
+
+        <a href="#"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
+                  text-base-content/70 hover:bg-base-200 hover:text-base-content">
+            <span class="material-symbols-outlined text-[20px]">settings</span>
+            Settings
+        </a>
+
+        <a href="#"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
+                  text-base-content/70 hover:bg-base-200 hover:text-base-content">
+            <span class="material-symbols-outlined text-[20px]">help</span>
+            Support
+        </a>
+    </nav>
+
+    <!-- User Profile Footer -->
+    <div class="border-t border-base-content/10 p-4">
+        <div class="flex items-center gap-3">
+            <div class="avatar avatar-placeholder">
+                <div class="w-9 rounded-full bg-primary/20 text-primary ring ring-primary/30 ring-offset-base-100 ring-offset-1">
+                    <span class="text-sm font-bold">AD</span>
+                </div>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-base-content truncate">Admin User</p>
+                <p class="text-[11px] text-base-content/40 truncate">admin@bookit.com</p>
+            </div>
+            <button class="btn btn-ghost btn-square btn-sm">
+                <span class="material-symbols-outlined text-[18px] text-base-content/50">logout</span>
+            </button>
+        </div>
+    </div>
+</aside>

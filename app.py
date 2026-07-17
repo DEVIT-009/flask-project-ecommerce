@@ -4,14 +4,10 @@ from extensions import db, migrate
 
 from api.controllers.product_controller import product_controller
 from api.controllers.category_controller import category_controller
-from web.routes.route import web_routes
+from admin import admin_routes
+from web import web_routes
 
-
-app = Flask(
-    __name__,
-    template_folder="web/templates",
-    static_folder="web/static"
-)
+app = Flask(__name__)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///mydb.sqlite3"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -25,7 +21,9 @@ import api.models
 # Register blueprint
 app.register_blueprint(product_controller)
 app.register_blueprint(category_controller)
+
 app.register_blueprint(web_routes)
+app.register_blueprint(admin_routes)
 
 
 if __name__ == "__main__":

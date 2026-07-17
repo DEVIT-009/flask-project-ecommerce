@@ -1,0 +1,35 @@
+{% extends "admin/index.html" %}
+
+{% block title %}Bookit Admin — Dashboard{% endblock %}
+
+{% block page_title %}Overview{% endblock %}
+{% block page_subtitle %}Welcome back, Admin! Here's what's happening today.{% endblock %}
+
+{% block content %}
+
+    <!-- ================= KPI STAT CARDS ================= -->
+    {% include "admin/components/stat_cards.html" %}
+
+    <!-- ================= CHARTS ROW ================= -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Revenue Chart (wide) -->
+        {% include "admin/components/chart_revenue.html" %}
+
+        <!-- Top Categories (narrow) -->
+        {% include "admin/components/chart_categories.html" %}
+
+    </div>
+
+    <!-- ================= BOTTOM ROW ================= -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Recent Orders Table -->
+        {% include "admin/components/recent_orders.html" %}
+
+        <!-- Top Selling Books -->
+        {% include "admin/components/top_books.html" %}
+
+    </div>
+
+{% endblock %}

@@ -1,7 +1,7 @@
 from flask import Blueprint
 
-web_routes = Blueprint(
-    "web_routes",
+admin_routes = Blueprint(
+    "admin_routes",
     __name__
 )
 

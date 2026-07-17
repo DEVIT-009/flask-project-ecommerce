@@ -1,0 +1,20 @@
+{% extends "web/index.html" %}
+
+{% block title %}Bookit - Welcome!{% endblock %}
+
+{% block content %}
+
+    <!-- ================= Hero ================= -->
+    {% include "web/sections/hero.html" %}
+
+    <div class="px-16 space-y-8">
+
+        <!-- ================= Top Sell BOOKS ================= -->
+        {% include "web/sections/top_sell_product.html" %}
+
+        <!-- ================= ABOUT SECTION ================= -->
+        {% include "web/sections/about.html" %}
+
+    </div>
+
+{% endblock %}

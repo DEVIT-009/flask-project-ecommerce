@@ -1,0 +1,65 @@
+<!-- ========================= RECENT ORDERS ========================= -->
+<div class="card bg-base-100 shadow-sm border border-base-content/5">
+    <div class="card-body p-5">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h3 class="font-bold text-base text-base-content">Recent Orders</h3>
+                <p class="text-xs text-base-content/40 mt-0.5">Last 24 hours activity</p>
+            </div>
+            <a href="#" class="btn btn-ghost btn-xs text-primary gap-1">
+                View all
+                <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+            </a>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto -mx-1">
+            <table class="table table-sm">
+                <thead>
+                    <tr class="text-[10px] uppercase tracking-widest text-base-content/40 border-base-content/5">
+                        <th>Order</th>
+                        <th>Customer</th>
+                        <th>Book</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody class="text-xs">
+                    {% set orders = [
+                        ('#1042', 'Alice Johnson', 'Atomic Habits', '$14.99', 'Delivered', 'badge-success'),
+                        ('#1041', 'Bob Smith',    'Deep Work',     '$12.50', 'Processing','badge-warning'),
+                        ('#1040', 'Carol White',  'The Alchemist', '$9.99',  'Shipped',   'badge-info'),
+                        ('#1039', 'David Park',   'Lean Startup',  '$18.00', 'Pending',   'badge-neutral'),
+                        ('#1038', 'Eva Martinez', 'Sapiens',       '$16.50', 'Delivered', 'badge-success'),
+                        ('#1037', 'Frank Lee',    'Dune',          '$13.00', 'Cancelled', 'badge-error'),
+                    ] %}
+                    {% for order_id, customer, book, amount, status, badge_cls in orders %}
+                    <tr class="border-base-content/5 hover:bg-base-200/40 transition-colors">
+                        <td>
+                            <span class="font-mono font-bold text-primary text-[11px]">{{ order_id }}</span>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <div class="avatar avatar-placeholder">
+                                    <div class="w-6 rounded-full bg-base-200 text-base-content text-[9px] font-bold">
+                                        <span>{{ customer[0] }}</span>
+                                    </div>
+                                </div>
+                                <span class="text-base-content/80">{{ customer }}</span>
+                            </div>
+                        </td>
+                        <td class="text-base-content/60 max-w-[100px] truncate">{{ book }}</td>
+                        <td class="font-semibold text-base-content">{{ amount }}</td>
+                        <td>
+                            <span class="badge {{ badge_cls }} badge-sm badge-outline">{{ status }}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>

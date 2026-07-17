@@ -1,0 +1,117 @@
+<!-- ========================= STAT CARDS ========================= -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+
+    <!-- Total Revenue -->
+    <div class="card bg-base-100 shadow-sm border border-base-content/5 hover:shadow-md hover:border-primary/30 transition-all duration-300 group">
+        <div class="card-body p-5">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-xs text-base-content/50 uppercase tracking-widest font-semibold">Total Revenue</p>
+                    <h3 class="text-3xl font-black text-base-content mt-1 tracking-tight">$48,295</h3>
+                    <div class="flex items-center gap-1.5 mt-2">
+                        <span class="badge badge-success badge-sm gap-1">
+                            <span class="material-symbols-outlined text-[12px]">trending_up</span>
+                            +12.4%
+                        </span>
+                        <span class="text-[11px] text-base-content/40">vs last month</span>
+                    </div>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <span class="material-symbols-outlined text-primary text-[24px]">payments</span>
+                </div>
+            </div>
+            <!-- Mini sparkline bar -->
+            <div class="flex items-end gap-0.5 h-8 mt-3">
+                {% for h in [40, 55, 45, 70, 60, 80, 75, 90, 85, 100] %}
+                <div class="flex-1 bg-primary/20 rounded-sm group-hover:bg-primary/30 transition-colors"
+                     style="height: {{ h }}%"></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Orders -->
+    <div class="card bg-base-100 shadow-sm border border-base-content/5 hover:shadow-md hover:border-success/30 transition-all duration-300 group">
+        <div class="card-body p-5">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-xs text-base-content/50 uppercase tracking-widest font-semibold">Total Orders</p>
+                    <h3 class="text-3xl font-black text-base-content mt-1 tracking-tight">1,842</h3>
+                    <div class="flex items-center gap-1.5 mt-2">
+                        <span class="badge badge-success badge-sm gap-1">
+                            <span class="material-symbols-outlined text-[12px]">trending_up</span>
+                            +8.1%
+                        </span>
+                        <span class="text-[11px] text-base-content/40">vs last month</span>
+                    </div>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-success/10 flex items-center justify-center group-hover:bg-success/20 transition-colors">
+                    <span class="material-symbols-outlined text-success text-[24px]">shopping_bag</span>
+                </div>
+            </div>
+            <div class="flex items-end gap-0.5 h-8 mt-3">
+                {% for h in [50, 60, 55, 65, 72, 68, 80, 78, 90, 95] %}
+                <div class="flex-1 bg-success/20 rounded-sm group-hover:bg-success/30 transition-colors"
+                     style="height: {{ h }}%"></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Books -->
+    <div class="card bg-base-100 shadow-sm border border-base-content/5 hover:shadow-md hover:border-warning/30 transition-all duration-300 group">
+        <div class="card-body p-5">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-xs text-base-content/50 uppercase tracking-widest font-semibold">Total Books</p>
+                    <h3 class="text-3xl font-black text-base-content mt-1 tracking-tight">3,610</h3>
+                    <div class="flex items-center gap-1.5 mt-2">
+                        <span class="badge badge-warning badge-sm gap-1">
+                            <span class="material-symbols-outlined text-[12px]">trending_flat</span>
+                            +2.0%
+                        </span>
+                        <span class="text-[11px] text-base-content/40">vs last month</span>
+                    </div>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-warning/10 flex items-center justify-center group-hover:bg-warning/20 transition-colors">
+                    <span class="material-symbols-outlined text-warning text-[24px]">menu_book</span>
+                </div>
+            </div>
+            <div class="flex items-end gap-0.5 h-8 mt-3">
+                {% for h in [60, 62, 65, 63, 66, 68, 65, 70, 72, 74] %}
+                <div class="flex-1 bg-warning/20 rounded-sm group-hover:bg-warning/30 transition-colors"
+                     style="height: {{ h }}%"></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Customers -->
+    <div class="card bg-base-100 shadow-sm border border-base-content/5 hover:shadow-md hover:border-error/30 transition-all duration-300 group">
+        <div class="card-body p-5">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-xs text-base-content/50 uppercase tracking-widest font-semibold">Active Customers</p>
+                    <h3 class="text-3xl font-black text-base-content mt-1 tracking-tight">9,204</h3>
+                    <div class="flex items-center gap-1.5 mt-2">
+                        <span class="badge badge-error badge-sm gap-1">
+                            <span class="material-symbols-outlined text-[12px]">trending_down</span>
+                            -3.2%
+                        </span>
+                        <span class="text-[11px] text-base-content/40">vs last month</span>
+                    </div>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-error/10 flex items-center justify-center group-hover:bg-error/20 transition-colors">
+                    <span class="material-symbols-outlined text-error text-[24px]">people</span>
+                </div>
+            </div>
+            <div class="flex items-end gap-0.5 h-8 mt-3">
+                {% for h in [90, 85, 88, 80, 75, 72, 70, 68, 65, 60] %}
+                <div class="flex-1 bg-error/20 rounded-sm group-hover:bg-error/30 transition-colors"
+                     style="height: {{ h }}%"></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+</div>
