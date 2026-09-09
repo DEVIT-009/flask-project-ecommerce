@@ -34,88 +34,52 @@
             <span class="ml-auto badge badge-primary badge-sm">New</span>
         </a>
 
-        <!-- Section: Catalog -->
-        <p class="text-[9px] font-bold uppercase tracking-widest text-base-content/30 px-3 mb-2 mt-4">Catalog</p>
+        <!-- Section: Management -->
+        <p class="text-[9px] font-bold uppercase tracking-widest text-base-content/30 px-3 mb-2 mt-4">Management</p>
 
-        <a href="#"
+        <a href="{{ url_for('admin_routes.users') }}"
            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
-                  text-base-content/70 hover:bg-base-200 hover:text-base-content">
-            <span class="material-symbols-outlined text-[20px]">menu_book</span>
-            Books
+                  {{ 'bg-primary/10 text-primary' if request.endpoint == 'admin_routes.users' else 'text-base-content/70 hover:bg-base-200 hover:text-base-content' }}">
+            <span class="material-symbols-outlined text-[20px]">group</span>
+            Users
         </a>
 
-        <a href="#"
+        {% if current_user and current_user.role == 'admin' %}
+        <a href="{{ url_for('admin_routes.logs_view') }}"
            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
-                  text-base-content/70 hover:bg-base-200 hover:text-base-content">
-            <span class="material-symbols-outlined text-[20px]">category</span>
-            Categories
+                  {{ 'bg-primary/10 text-primary' if request.endpoint == 'admin_routes.logs_view' else 'text-base-content/70 hover:bg-base-200 hover:text-base-content' }}">
+            <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+            Logs
         </a>
+        {% endif %}
 
-        <a href="#"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
-                  text-base-content/70 hover:bg-base-200 hover:text-base-content">
-            <span class="material-symbols-outlined text-[20px]">sell</span>
-            Pricing
-        </a>
-
-        <!-- Section: Orders -->
-        <p class="text-[9px] font-bold uppercase tracking-widest text-base-content/30 px-3 mb-2 mt-4">Commerce</p>
-
-        <a href="#"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
-                  text-base-content/70 hover:bg-base-200 hover:text-base-content">
-            <span class="material-symbols-outlined text-[20px]">shopping_bag</span>
-            Orders
-            <span class="ml-auto badge badge-error badge-sm">12</span>
-        </a>
-
-        <a href="#"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
-                  text-base-content/70 hover:bg-base-200 hover:text-base-content">
-            <span class="material-symbols-outlined text-[20px]">people</span>
-            Customers
-        </a>
-
-        <a href="#"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
-                  text-base-content/70 hover:bg-base-200 hover:text-base-content">
-            <span class="material-symbols-outlined text-[20px]">rate_review</span>
-            Reviews
-        </a>
-
-        <!-- Section: Settings -->
-        <p class="text-[9px] font-bold uppercase tracking-widest text-base-content/30 px-3 mb-2 mt-4">System</p>
-
-        <a href="#"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
-                  text-base-content/70 hover:bg-base-200 hover:text-base-content">
-            <span class="material-symbols-outlined text-[20px]">settings</span>
-            Settings
-        </a>
-
-        <a href="#"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
-                  text-base-content/70 hover:bg-base-200 hover:text-base-content">
-            <span class="material-symbols-outlined text-[20px]">help</span>
-            Support
-        </a>
     </nav>
+
 
     <!-- User Profile Footer -->
     <div class="border-t border-base-content/10 p-4">
         <div class="flex items-center gap-3">
-            <div class="avatar avatar-placeholder">
-                <div class="w-9 rounded-full bg-primary/20 text-primary ring ring-primary/30 ring-offset-base-100 ring-offset-1">
-                    <span class="text-sm font-bold">AD</span>
+            {% if current_user and current_user.profile %}
+                <img src="{{ url_for('static', filename='assets/user-img/' + current_user.profile_thumb) }}"
+                     alt="{{ current_user.name }}"
+                     onerror="if (!this.dataset.fallback) { this.dataset.fallback='1'; this.src='{{ url_for('static', filename='assets/user-img/' + current_user.profile) }}'; } else { this.onerror=null; this.src='{{ url_for('static', filename='assets/user-img/default.svg') }}'; }"
+                     class="w-9 h-9 rounded-full object-cover ring ring-primary/30 ring-offset-base-100 ring-offset-1" />
+            {% else %}
+                <div class="avatar avatar-placeholder">
+                    <div class="w-9 rounded-full bg-primary/20 text-primary ring ring-primary/30 ring-offset-base-100 ring-offset-1 flex items-center justify-center">
+                        <span class="text-xs font-bold">{{ current_user.initials if current_user else 'AD' }}</span>
+                    </div>
                 </div>
-            </div>
+            {% endif %}
             <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold text-base-content truncate">Admin User</p>
-                <p class="text-[11px] text-base-content/40 truncate">admin@bookit.com</p>
+                <p class="text-sm font-semibold text-base-content truncate">{{ current_user.name if current_user else 'Admin User' }}</p>
+                <p class="text-[11px] text-base-content/40 truncate">{{ current_user.email if current_user else 'admin@bookit.com' }}</p>
             </div>
-            <button class="btn btn-ghost btn-square btn-sm">
-                <span class="material-symbols-outlined text-[18px] text-base-content/50">logout</span>
-            </button>
+            <a href="{{ url_for('admin_routes.logout') }}"
+               class="btn btn-text btn-square btn-sm text-error/80 hover:bg-error/15 hover:text-error transition-all"
+               title="Sign out">
+                <span class="material-symbols-outlined text-[18px]">logout</span>
+            </a>
         </div>
     </div>
 </aside>

@@ -8,5 +8,3 @@ class Branch(db.Model):
     phone = db.Column(db.String(30), nullable=False)
     location = db.Column(db.String(255), nullable=False)
     logo = db.Column(db.String(255), nullable=True)
-
-    users = db.relationship("User", backref="branch", lazy=True)

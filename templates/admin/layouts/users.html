@@ -1,0 +1,818 @@
+{% extends "admin/index.html" %}
+
+{% block title %}Bookit Admin — Users{% endblock %}
+
+{% block page_title %}Users{% endblock %}
+{% block page_subtitle %}Manage system accounts and access roles.{% endblock %}
+
+{% block content %}
+
+<!-- ═══════════════════════ TOAST NOTIFICATION CONTAINER ═══════════════════════ -->
+<div id="toast-container" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2.5 max-w-sm pointer-events-none"></div>
+
+<!-- ═══════════════════════ TOOLBAR ═══════════════════════ -->
+<div class="flex items-center justify-between gap-4 flex-wrap">
+
+    <!-- Add User Button (Top Left) -->
+    <button id="btn-open-create"
+            type="button"
+            onclick="openCreateModal()"
+            class="btn btn-primary btn-sm gap-2 shadow-md shadow-primary/20 font-medium">
+        <span class="material-symbols-outlined text-[18px]">person_add</span>
+        Add User
+    </button>
+
+    <!-- Search (Top Right) -->
+    <div class="flex items-center">
+        <label class="input input-sm bg-base-100 border border-base-content/20 w-64 flex items-center gap-2 rounded-xl focus-within:border-primary">
+            <span class="material-symbols-outlined text-base-content/40 text-[18px]">search</span>
+            <input id="search-input"
+                   type="text"
+                   placeholder="Search users…"
+                   oninput="filterTable(this.value)"
+                   class="grow text-xs bg-transparent focus:outline-none" />
+        </label>
+    </div>
+</div>
+
+<!-- ═══════════════════════ USERS TABLE ═══════════════════════ -->
+<div class="card bg-base-100 shadow-sm border border-base-content/10 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="table table-sm w-full" id="users-table">
+            <thead>
+                <tr class="text-[11px] uppercase tracking-wider text-base-content/50 bg-base-200/50 border-b border-base-content/10">
+                    <th class="w-14 px-4 py-3 font-semibold">#</th>
+                    <th class="font-semibold py-3">User</th>
+                    <th class="font-semibold py-3">Email</th>
+                    <th class="font-semibold py-3 w-32">Role</th>
+                    <!-- Sticky Actions Column -->
+                    <th class="font-semibold py-3 text-right sticky right-0 bg-base-200/80 backdrop-blur-md px-4 w-36">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="users-tbody" class="text-xs divide-y divide-base-content/5">
+                {% for user in users %}
+                <tr class="user-row hover:bg-base-200/40 transition-colors"
+                    data-id="{{ user.id }}"
+                    data-name="{{ user.name | lower }}"
+                    data-email="{{ user.email | lower }}"
+                    data-role="{{ user.role | lower }}">
+
+                    <td class="px-4 py-3 text-base-content/40 font-mono text-[11px]">{{ user.id }}</td>
+                    <td class="py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="avatar">
+                                <div class="w-8 h-8 rounded-full overflow-hidden bg-base-200 border border-base-content/10 shrink-0">
+                                    <img src="{{ url_for('static', filename='assets/user-img/' + (user.profile_thumb if user.profile else 'default.svg')) }}"
+                                         alt="{{ user.name }}"
+                                         onerror="if (!this.dataset.fallback) { this.dataset.fallback='1'; this.src='{{ url_for('static', filename='assets/user-img/' + (user.profile if user.profile else 'default.svg')) }}'; } else { this.onerror=null; this.src='{{ url_for('static', filename='assets/user-img/default.svg') }}'; }"
+                                         class="w-full h-full object-cover user-avatar-img" />
+                                </div>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-semibold text-base-content text-xs leading-tight user-name-label">{{ user.name }}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-3 text-base-content/70 font-normal user-email-label">{{ user.email }}</td>
+                    <td class="py-3 user-role-label">
+                        {% if user.role == 'admin' %}
+                            <span class="badge badge-warning badge-sm badge-outline font-medium text-[11px]">Admin</span>
+                        {% elif user.role == 'manager' %}
+                            <span class="badge badge-info badge-sm badge-outline font-medium text-[11px]">Manager</span>
+                        {% else %}
+                            <span class="badge badge-neutral badge-sm badge-outline font-medium text-[11px]">Staff</span>
+                        {% endif %}
+                    </td>
+                    <!-- Sticky Action Buttons -->
+                    <td class="sticky right-0 bg-base-100/95 backdrop-blur-md px-4 py-3 text-right">
+                        <div class="flex items-center justify-end gap-1.5">
+                            <button type="button"
+                                    onclick="openEditModal({{ user.id }})"
+                                    class="btn btn-warning btn-xs gap-1 font-medium"
+                                    title="Edit User">
+                                <span class="material-symbols-outlined text-[10px]">edit</span>
+                                Edit
+                            </button>
+                            <button type="button"
+                                    onclick="openDeleteModal({{ user.id }}, '{{ user.name }}')"
+                                    class="btn btn-error btn-xs btn-square"
+                                    title="Delete User">
+                                <span class="material-symbols-outlined text-[15px]">delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr id="empty-row">
+                    <td colspan="5" class="py-16 text-center text-base-content/40">
+                        <span class="material-symbols-outlined text-[42px] mb-2 block text-base-content/30">group_off</span>
+                        <p class="font-medium">No users found</p>
+                        <p class="text-xs text-base-content/40 mt-0.5">Click <strong>Add User</strong> to create the first account.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Table Footer -->
+    <div class="px-4 py-3 border-t border-base-content/10 bg-base-200/20 flex items-center justify-between text-xs text-base-content/50">
+        <span id="table-count">
+            Showing {{ users | length }} user{{ 's' if users | length != 1 else '' }}
+        </span>
+    </div>
+</div>
+
+
+<!-- ══════════════════ FLYONUI MODAL: CREATE USER ══════════════════ -->
+<div id="modal-create" class="overlay modal overlay-open:opacity-100 modal-middle hidden" role="dialog" tabindex="-1">
+    <div class="modal-dialog modal-dialog-md">
+        <div class="modal-content border border-base-content/10 bg-base-100 shadow-2xl rounded-2xl overflow-hidden">
+            
+            <div class="modal-header px-5 py-4 border-b border-base-content/10 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-primary/15 text-primary flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[18px]">person_add</span>
+                    </div>
+                    <div>
+                        <h3 class="modal-title font-bold text-sm text-base-content">Add New User</h3>
+                        <p class="text-[11px] text-base-content/40">Create a new system user account</p>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-text btn-circle btn-xs text-base-content/60 hover:text-base-content" onclick="closeModal('modal-create')">
+                    <span class="material-symbols-outlined text-[18px]">close</span>
+                </button>
+            </div>
+
+            <form id="form-create" onsubmit="submitCreate(event)" enctype="multipart/form-data">
+                <div class="modal-body p-5 space-y-4">
+                    
+                    <!-- Profile Image Upload Box -->
+                    <div class="flex items-center gap-4 p-3 bg-base-200/40 rounded-xl border border-base-content/10">
+                        <div class="avatar">
+                            <div class="w-14 h-14 rounded-full overflow-hidden bg-base-300 border-2 border-base-100 shadow shrink-0">
+                                <img id="create-preview-img"
+                                     src="{{ url_for('static', filename='assets/user-img/default.svg') }}"
+                                     alt="Preview"
+                                     onerror="this.onerror=null;this.src='{{ url_for('static', filename='assets/user-img/default.svg') }}';"
+                                     class="w-full h-full object-cover" />
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <label class="block text-xs font-semibold text-base-content/80 mb-1">Profile Photo (Optional)</label>
+                            <div class="flex items-center gap-2">
+                                <label for="c-profile-input" class="btn btn-soft btn-primary btn-xs gap-1 cursor-pointer">
+                                    <span class="material-symbols-outlined text-[14px]">cloud_upload</span>
+                                    Choose Photo
+                                </label>
+                                <button type="button" id="c-profile-remove-btn" onclick="resetCreatePhoto()" class="btn btn-soft btn-secondary btn-xs text-[11px] hidden">
+                                    Remove
+                                </button>
+                                <input id="c-profile-input" name="profile" type="file" accept=".jpg,.jpeg,.png,.webp,.gif" class="hidden" onchange="previewCreatePhoto(this)" />
+                            </div>
+                            <p class="text-[10px] text-base-content/40 mt-1">JPG, PNG, WEBP, GIF up to 5MB</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="label-text text-xs font-semibold text-base-content/70 mb-1 block">Full Name *</label>
+                        <input id="c-name" name="name" type="text" required placeholder="e.g. Davuth Doe"
+                               class="input input-sm w-full bg-base-200/40 border border-base-content/20 rounded-lg text-xs focus:border-primary focus:bg-base-100" />
+                    </div>
+
+                    <div>
+                        <label class="label-text text-xs font-semibold text-base-content/70 mb-1 block">Email Address *</label>
+                        <input id="c-email" name="email" type="email" required placeholder="e.g. davuth@example.com"
+                               class="input input-sm w-full bg-base-200/40 border border-base-content/20 rounded-lg text-xs focus:border-primary focus:bg-base-100" />
+                    </div>
+
+                    <div>
+                        <label class="label-text text-xs font-semibold text-base-content/70 mb-1 block">Role *</label>
+                        <select id="c-role" name="role" class="select select-sm w-full bg-base-200/40 border border-base-content/20 rounded-lg text-xs focus:border-primary focus:bg-base-100">
+                            <option value="staff">Staff</option>
+                            <option value="manager">Manager</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="label-text text-xs font-semibold text-base-content/70 mb-1 block">Password *</label>
+                        <input id="c-password" name="password" type="password" required placeholder="Enter secure password"
+                               class="input input-sm w-full bg-base-200/40 border border-base-content/20 rounded-lg text-xs focus:border-primary focus:bg-base-100" />
+                    </div>
+
+                    <div id="create-error" class="alert alert-error text-xs py-2 px-3 hidden rounded-lg"></div>
+                </div>
+
+                <div class="modal-footer px-5 py-3.5 bg-base-200/30 border-t border-base-content/10 flex items-center justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-create')" class="btn btn-soft btn-secondary btn-sm text-xs">Cancel</button>
+                    <button type="submit" id="btn-create-submit" class="btn btn-primary btn-sm text-xs gap-1">
+                        <span class="material-symbols-outlined text-[16px]">check</span>
+                        Create User
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- ══════════════════ FLYONUI MODAL: EDIT USER ═══════════════════ -->
+<div id="modal-edit" class="overlay modal overlay-open:opacity-100 modal-middle hidden" role="dialog" tabindex="-1">
+    <div class="modal-dialog modal-dialog-md">
+        <div class="modal-content border border-base-content/10 bg-base-100 shadow-2xl rounded-2xl overflow-hidden">
+            
+            <div class="modal-header px-5 py-4 border-b border-base-content/10 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-info/15 text-info flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[18px]">edit</span>
+                    </div>
+                    <div>
+                        <h3 class="modal-title font-bold text-sm text-base-content">Edit User</h3>
+                        <p class="text-[11px] text-base-content/40">Update user profile information</p>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-text btn-circle btn-xs text-base-content/60 hover:text-base-content" onclick="closeModal('modal-edit')">
+                    <span class="material-symbols-outlined text-[18px]">close</span>
+                </button>
+            </div>
+
+            <form id="form-edit" onsubmit="submitEdit(event)" enctype="multipart/form-data">
+                <input type="hidden" id="e-id" />
+                <input type="hidden" id="e-remove-profile" value="false" />
+
+                <div class="modal-body p-5 space-y-4">
+                    
+                    <!-- Profile Image Upload / Edit Box -->
+                    <div class="flex items-center gap-4 p-3 bg-base-200/40 rounded-xl border border-base-content/10">
+                        <div class="avatar">
+                            <div class="w-14 h-14 rounded-full overflow-hidden bg-base-300 border-2 border-base-100 shadow shrink-0">
+                                <img id="edit-preview-img"
+                                     src="{{ url_for('static', filename='assets/user-img/default.svg') }}"
+                                     alt="Preview"
+                                     onerror="this.onerror=null;this.src='{{ url_for('static', filename='assets/user-img/default.svg') }}';"
+                                     class="w-full h-full object-cover" />
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <label class="block text-xs font-semibold text-base-content/80 mb-1">Profile Photo</label>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <label for="e-profile-input" class="btn btn-soft btn-primary btn-xs gap-1 cursor-pointer">
+                                    <span class="material-symbols-outlined text-[14px]">photo_camera</span>
+                                    Change Photo
+                                </label>
+                                <button type="button" id="e-profile-remove-btn" onclick="removeEditPhoto()" class="btn btn-soft btn-error btn-xs gap-1 text-[11px]">
+                                    <span class="material-symbols-outlined text-[14px]">delete</span>
+                                    Remove Photo
+                                </button>
+                                <input id="e-profile-input" name="profile" type="file" accept=".jpg,.jpeg,.png,.webp,.gif" class="hidden" onchange="previewEditPhoto(this)" />
+                            </div>
+                            <p id="e-profile-status" class="text-[10px] text-base-content/40 mt-1">Keep current photo or choose a new file</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="label-text text-xs font-semibold text-base-content/70 mb-1 block">Full Name *</label>
+                        <input id="e-name" name="name" type="text" required placeholder="Full Name"
+                               class="input input-sm w-full bg-base-200/40 border border-base-content/20 rounded-lg text-xs focus:border-primary focus:bg-base-100" />
+                    </div>
+
+                    <div>
+                        <label class="label-text text-xs font-semibold text-base-content/70 mb-1 block">Email Address *</label>
+                        <input id="e-email" name="email" type="email" required placeholder="Email Address"
+                               class="input input-sm w-full bg-base-200/40 border border-base-content/20 rounded-lg text-xs focus:border-primary focus:bg-base-100" />
+                    </div>
+
+                    <div>
+                        <label class="label-text text-xs font-semibold text-base-content/70 mb-1 block">Role *</label>
+                        <select id="e-role" name="role" class="select select-sm w-full bg-base-200/40 border border-base-content/20 rounded-lg text-xs focus:border-primary focus:bg-base-100">
+                            <option value="staff">Staff</option>
+                            <option value="manager">Manager</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="label-text text-xs font-semibold text-base-content/70 mb-1 block">New Password <span class="text-base-content/40 font-normal">(leave blank to keep current)</span></label>
+                        <input id="e-password" name="password" type="password" placeholder="••••••••"
+                               class="input input-sm w-full bg-base-200/40 border border-base-content/20 rounded-lg text-xs focus:border-primary focus:bg-base-100" />
+                    </div>
+
+                    <div id="edit-error" class="alert alert-error text-xs py-2 px-3 hidden rounded-lg"></div>
+                </div>
+
+                <div class="modal-footer px-5 py-3.5 bg-base-200/30 border-t border-base-content/10 flex items-center justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-edit')" class="btn btn-soft btn-secondary btn-sm text-xs">Cancel</button>
+                    <button type="submit" id="btn-edit-submit" class="btn btn-primary btn-sm text-xs gap-1">
+                        <span class="material-symbols-outlined text-[16px]">save</span>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- ══════════════════ FLYONUI MODAL: DELETE CONFIRM ══════════════════ -->
+<div id="modal-delete" class="overlay modal overlay-open:opacity-100 modal-middle hidden" role="dialog" tabindex="-1">
+    <div class="modal-dialog modal-dialog-sm">
+        <div class="modal-content border border-base-content/10 bg-base-100 shadow-2xl rounded-2xl overflow-hidden text-center p-6">
+            
+            <div class="w-12 h-12 rounded-full bg-error/15 text-error mx-auto flex items-center justify-center mb-3">
+                <span class="material-symbols-outlined text-[28px]">delete</span>
+            </div>
+
+            <h3 class="font-bold text-base text-base-content">Delete User?</h3>
+            <p class="text-xs text-base-content/60 mt-1 mb-5">
+                Are you sure you want to delete <strong id="delete-user-name" class="text-base-content"></strong>? This action cannot be undone.
+            </p>
+
+            <div class="flex items-center justify-center gap-3">
+                <button type="button" onclick="closeModal('modal-delete')" class="btn btn-soft btn-secondary btn-sm text-xs px-4">Cancel</button>
+                <button type="button" id="btn-confirm-delete" class="btn btn-error btn-sm text-xs gap-1 px-4 text-white">
+                    <span class="material-symbols-outlined text-[16px]">delete</span>
+                    Yes, Delete
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+const DEFAULT_IMG_URL = "{{ url_for('static', filename='assets/user-img/default.svg') }}";
+const USER_IMG_BASE_URL = "{{ url_for('static', filename='assets/user-img/') }}";
+
+// ─── Toast Notification System ───────────────────────────────────────────────
+function showToast(type, title, message) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = 'pointer-events-auto flex items-start gap-3 p-3.5 rounded-xl border shadow-xl transition-all duration-300 transform translate-x-10 opacity-0 bg-base-100';
+
+    let iconName = 'info';
+    let borderColor = 'border-info/30';
+    let iconBg = 'bg-info/15 text-info';
+
+    if (type === 'success') {
+        iconName = 'check_circle';
+        borderColor = 'border-success/30';
+        iconBg = 'bg-success/15 text-success';
+    } else if (type === 'error') {
+        iconName = 'error';
+        borderColor = 'border-error/30';
+        iconBg = 'bg-error/15 text-error';
+    } else if (type === 'warning') {
+        iconName = 'warning';
+        borderColor = 'border-warning/30';
+        iconBg = 'bg-warning/15 text-warning';
+    }
+
+    toast.classList.add(borderColor);
+
+    toast.innerHTML = `
+        <div class="w-8 h-8 rounded-lg ${iconBg} flex items-center justify-center shrink-0 mt-0.5">
+            <span class="material-symbols-outlined text-[20px]">${iconName}</span>
+        </div>
+        <div class="flex-1 min-w-0">
+            <h4 class="text-xs font-bold text-base-content leading-tight">${title}</h4>
+            ${message ? `<p class="text-[11px] text-base-content/60 mt-0.5 leading-relaxed">${message}</p>` : ''}
+        </div>
+        <button type="button" class="text-base-content/40 hover:text-base-content transition-colors shrink-0 p-1">
+            <span class="material-symbols-outlined text-[16px]">close</span>
+        </button>
+    `;
+
+    const closeBtn = toast.querySelector('button');
+    closeBtn.onclick = () => dismissToast(toast);
+
+    container.appendChild(toast);
+
+    // Animate in
+    requestAnimationFrame(() => {
+        toast.classList.remove('translate-x-10', 'opacity-0');
+        toast.classList.add('translate-x-0', 'opacity-100');
+    });
+
+    // Auto dismiss after 4 seconds
+    const timeout = setTimeout(() => {
+        dismissToast(toast);
+    }, 4000);
+
+    toast.dataset.timeout = timeout;
+}
+
+function dismissToast(toast) {
+    if (!toast) return;
+    if (toast.dataset.timeout) clearTimeout(toast.dataset.timeout);
+    toast.classList.add('translate-x-10', 'opacity-0');
+    setTimeout(() => {
+        toast.remove();
+    }, 300);
+}
+
+// ─── Modal Open / Close Helpers ──────────────────────────────────────────────
+function openModal(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    if (window.HSOverlay && typeof window.HSOverlay.open === 'function') {
+        window.HSOverlay.open(el);
+    } else {
+        el.classList.remove('hidden');
+        el.classList.add('open', 'opened');
+        let backdrop = document.getElementById(id + '-backdrop');
+        if (!backdrop) {
+            backdrop = document.createElement('div');
+            backdrop.id = id + '-backdrop';
+            backdrop.className = 'overlay-backdrop transition duration-300 fixed inset-0 bg-base-300/60 z-40';
+            backdrop.onclick = () => closeModal(id);
+            document.body.appendChild(backdrop);
+        }
+        document.body.classList.add('overflow-hidden');
+    }
+}
+
+function closeModal(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    if (window.HSOverlay && typeof window.HSOverlay.close === 'function') {
+        window.HSOverlay.close(el);
+    } else {
+        el.classList.remove('open', 'opened');
+        el.classList.add('hidden');
+        const backdrop = document.getElementById(id + '-backdrop');
+        if (backdrop) backdrop.remove();
+        document.body.classList.remove('overflow-hidden');
+    }
+}
+
+function roleBadgeHtml(role) {
+    if (role === 'admin') {
+        return '<span class="badge badge-warning badge-sm badge-outline font-medium text-[11px]">Admin</span>';
+    } else if (role === 'manager') {
+        return '<span class="badge badge-info badge-sm badge-outline font-medium text-[11px]">Manager</span>';
+    }
+    return '<span class="badge badge-neutral badge-sm badge-outline font-medium text-[11px]">Staff</span>';
+}
+
+function getAvatarUrl(profile, variant = 'thm') {
+    if (!profile || profile === 'default.svg') {
+        return DEFAULT_IMG_URL;
+    }
+    if (profile.startsWith('thm_') || profile.startsWith('org_')) {
+        return USER_IMG_BASE_URL + profile;
+    }
+    const prefix = variant ? `${variant}_` : '';
+    return USER_IMG_BASE_URL + prefix + profile;
+}
+
+function showError(elId, msg) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.remove('hidden');
+}
+
+function clearError(elId) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    el.textContent = '';
+    el.classList.add('hidden');
+}
+
+function setLoading(btnId, loading) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.disabled = loading;
+    if (loading) btn.classList.add('loading');
+    else btn.classList.remove('loading');
+}
+
+// ─── Photo Preview Handlers ──────────────────────────────────────────────────
+function previewCreatePhoto(input) {
+    const file = input.files && input.files[0];
+    const preview = document.getElementById('create-preview-img');
+    const removeBtn = document.getElementById('c-profile-remove-btn');
+    if (file) {
+        preview.src = URL.createObjectURL(file);
+        removeBtn.classList.remove('hidden');
+    }
+}
+
+function resetCreatePhoto() {
+    const input = document.getElementById('c-profile-input');
+    const preview = document.getElementById('create-preview-img');
+    const removeBtn = document.getElementById('c-profile-remove-btn');
+    input.value = '';
+    preview.src = DEFAULT_IMG_URL;
+    removeBtn.classList.add('hidden');
+}
+
+function previewEditPhoto(input) {
+    const file = input.files && input.files[0];
+    const preview = document.getElementById('edit-preview-img');
+    const removeFlag = document.getElementById('e-remove-profile');
+    const removeBtn = document.getElementById('e-profile-remove-btn');
+    const statusText = document.getElementById('e-profile-status');
+
+    if (file) {
+        preview.src = URL.createObjectURL(file);
+        removeFlag.value = 'false';
+        removeBtn.classList.remove('hidden');
+        statusText.textContent = 'New photo selected: ' + file.name;
+    }
+}
+
+function removeEditPhoto() {
+    const input = document.getElementById('e-profile-input');
+    const preview = document.getElementById('edit-preview-img');
+    const removeFlag = document.getElementById('e-remove-profile');
+    const removeBtn = document.getElementById('e-profile-remove-btn');
+    const statusText = document.getElementById('e-profile-status');
+
+    input.value = '';
+    preview.src = DEFAULT_IMG_URL;
+    removeFlag.value = 'true';
+    removeBtn.classList.add('hidden');
+    statusText.textContent = 'Photo will be removed on save';
+}
+
+// ─── Live Search Filter ──────────────────────────────────────────────────────
+function filterTable(q) {
+    q = (q || '').toLowerCase().trim();
+    const rows = document.querySelectorAll('.user-row');
+    let visible = 0;
+    rows.forEach(row => {
+        const name = row.dataset.name || '';
+        const email = row.dataset.email || '';
+        const role = row.dataset.role || '';
+        const match = name.includes(q) || email.includes(q) || role.includes(q);
+        row.style.display = match ? '' : 'none';
+        if (match) visible++;
+    });
+
+    const countEl = document.getElementById('table-count');
+    if (countEl) {
+        countEl.textContent = `Showing ${visible} user${visible !== 1 ? 's' : ''}`;
+    }
+}
+
+// ─── Add User ────────────────────────────────────────────────────────────────
+function openCreateModal() {
+    document.getElementById('form-create').reset();
+    resetCreatePhoto();
+    clearError('create-error');
+    openModal('modal-create');
+}
+
+async function submitCreate(e) {
+    e.preventDefault();
+    clearError('create-error');
+    setLoading('btn-create-submit', true);
+
+    const formEl = document.getElementById('form-create');
+    const formData = new FormData();
+    formData.append('name', document.getElementById('c-name').value.trim());
+    formData.append('email', document.getElementById('c-email').value.trim());
+    formData.append('role', document.getElementById('c-role').value);
+    formData.append('password', document.getElementById('c-password').value);
+
+    const fileInput = document.getElementById('c-profile-input');
+    if (fileInput.files && fileInput.files[0]) {
+        formData.append('profile', fileInput.files[0]);
+    }
+
+    try {
+        const res = await fetch('/admin/users', {
+            method: 'POST',
+            body: formData,
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+            const errMsg = data.error || 'Failed to create user.';
+            showError('create-error', errMsg);
+            showToast('error', 'Create Failed', errMsg);
+            return;
+        }
+
+        appendUserRow(data);
+        updateCount(1);
+        closeModal('modal-create');
+        showToast('success', 'User Created', `${data.name} has been added successfully.`);
+    } catch {
+        showError('create-error', 'Network error. Please try again.');
+        showToast('error', 'Network Error', 'Could not connect to server. Please try again.');
+    } finally {
+        setLoading('btn-create-submit', false);
+    }
+}
+
+function appendUserRow(u) {
+    const emptyRow = document.getElementById('empty-row');
+    if (emptyRow) emptyRow.remove();
+
+    const avatarUrl = getAvatarUrl(u.profile);
+    const tbody = document.getElementById('users-tbody');
+    const tr = document.createElement('tr');
+    tr.className = 'user-row hover:bg-base-200/40 transition-colors';
+    tr.dataset.id = u.id;
+    tr.dataset.name = (u.name || '').toLowerCase();
+    tr.dataset.email = (u.email || '').toLowerCase();
+    tr.dataset.role = (u.role || '').toLowerCase();
+
+    tr.innerHTML = `
+        <td class="px-4 py-3 text-base-content/40 font-mono text-[11px]">${u.id}</td>
+        <td class="py-3">
+            <div class="flex items-center gap-3">
+                <div class="avatar">
+                    <div class="w-8 h-8 rounded-full overflow-hidden bg-base-200 border border-base-content/10 shrink-0">
+                        <img src="${avatarUrl}"
+                             alt="${u.name}"
+                             onerror="this.onerror=null;this.src='${DEFAULT_IMG_URL}';"
+                             class="w-full h-full object-cover user-avatar-img" />
+                    </div>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-semibold text-base-content text-xs leading-tight user-name-label">${u.name}</span>
+                </div>
+            </div>
+        </td>
+        <td class="py-3 text-base-content/70 font-normal user-email-label">${u.email}</td>
+        <td class="py-3 user-role-label">${roleBadgeHtml(u.role)}</td>
+        <td class="sticky right-0 bg-base-100/95 backdrop-blur-md px-4 py-3 text-right">
+            <div class="flex items-center justify-end gap-1.5">
+                <button type="button"
+                        onclick="openEditModal(${u.id})"
+                        class="btn btn-warning btn-xs gap-1 font-medium"
+                        title="Edit User">
+                    <span class="material-symbols-outlined text-[10px]">edit</span>
+                    Edit
+                </button>
+                <button type="button"
+                        onclick="openDeleteModal(${u.id}, '${(u.name || '').replace(/'/g, "\\'")}')"
+                        class="btn btn-error btn-xs btn-square"
+                        title="Delete User">
+                    <span class="material-symbols-outlined text-[15px]">delete</span>
+                </button>
+            </div>
+        </td>`;
+    tbody.appendChild(tr);
+}
+
+// ─── Edit User ───────────────────────────────────────────────────────────────
+async function openEditModal(id) {
+    clearError('edit-error');
+    document.getElementById('form-edit').reset();
+    document.getElementById('e-id').value = id;
+    document.getElementById('e-remove-profile').value = 'false';
+    document.getElementById('e-profile-input').value = '';
+    document.getElementById('e-profile-status').textContent = 'Keep current photo or choose a new file';
+
+    openModal('modal-edit');
+
+    try {
+        const res = await fetch(`/admin/users/${id}`);
+        const user = await res.json();
+        document.getElementById('e-name').value = user.name || '';
+        document.getElementById('e-email').value = user.email || '';
+        document.getElementById('e-role').value = user.role || 'staff';
+
+        const preview = document.getElementById('edit-preview-img');
+        const removeBtn = document.getElementById('e-profile-remove-btn');
+        preview.src = getAvatarUrl(user.profile);
+
+        if (user.profile && user.profile !== 'default.svg') {
+            removeBtn.classList.remove('hidden');
+        } else {
+            removeBtn.classList.add('hidden');
+        }
+    } catch {
+        showError('edit-error', 'Could not load user data.');
+        showToast('error', 'Load Failed', 'Could not load user information.');
+    }
+}
+
+async function submitEdit(e) {
+    e.preventDefault();
+    clearError('edit-error');
+    setLoading('btn-edit-submit', true);
+
+    const id = document.getElementById('e-id').value;
+    const formData = new FormData();
+    formData.append('name', document.getElementById('e-name').value.trim());
+    formData.append('email', document.getElementById('e-email').value.trim());
+    formData.append('role', document.getElementById('e-role').value);
+    formData.append('remove_profile', document.getElementById('e-remove-profile').value);
+
+    const passwordVal = document.getElementById('e-password').value.trim();
+    if (passwordVal) {
+        formData.append('password', passwordVal);
+    }
+
+    const fileInput = document.getElementById('e-profile-input');
+    if (fileInput.files && fileInput.files[0]) {
+        formData.append('profile', fileInput.files[0]);
+    }
+
+    try {
+        const res = await fetch(`/admin/users/${id}`, {
+            method: 'POST',
+            body: formData,
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+            const errMsg = data.error || 'Failed to update user.';
+            showError('edit-error', errMsg);
+            showToast('error', 'Update Failed', errMsg);
+            return;
+        }
+
+        // Update table row in place
+        const row = document.querySelector(`.user-row[data-id="${id}"]`);
+        if (row) {
+            row.dataset.name = data.name.toLowerCase();
+            row.dataset.email = data.email.toLowerCase();
+            row.dataset.role = data.role.toLowerCase();
+
+            const nameEl = row.querySelector('.user-name-label');
+            if (nameEl) nameEl.textContent = data.name;
+
+            const emailEl = row.querySelector('.user-email-label');
+            if (emailEl) emailEl.textContent = data.email;
+
+            const roleEl = row.querySelector('.user-role-label');
+            if (roleEl) roleEl.innerHTML = roleBadgeHtml(data.role);
+
+            const avatarImg = row.querySelector('.user-avatar-img');
+            if (avatarImg) {
+                avatarImg.src = getAvatarUrl(data.profile) + '?t=' + Date.now();
+                avatarImg.alt = data.name;
+            }
+        }
+
+        closeModal('modal-edit');
+        showToast('success', 'User Updated', `${data.name}'s profile was updated successfully.`);
+    } catch {
+        showError('edit-error', 'Network error. Please try again.');
+        showToast('error', 'Network Error', 'Could not connect to server. Please try again.');
+    } finally {
+        setLoading('btn-edit-submit', false);
+    }
+}
+
+// ─── Delete User ─────────────────────────────────────────────────────────────
+let _deleteTargetId = null;
+
+function openDeleteModal(id, name) {
+    _deleteTargetId = id;
+    document.getElementById('delete-user-name').textContent = name;
+    openModal('modal-delete');
+}
+
+document.getElementById('btn-confirm-delete').addEventListener('click', async () => {
+    if (!_deleteTargetId) return;
+    setLoading('btn-confirm-delete', true);
+
+    try {
+        const res = await fetch(`/admin/users/${_deleteTargetId}`, { method: 'DELETE' });
+        if (!res.ok) {
+            showToast('error', 'Delete Failed', 'Could not delete user account.');
+            return;
+        }
+
+        const row = document.querySelector(`.user-row[data-id="${_deleteTargetId}"]`);
+        if (row) row.remove();
+        updateCount(-1);
+        closeModal('modal-delete');
+        _deleteTargetId = null;
+        showToast('success', 'User Deleted', 'User account was deleted successfully.');
+    } catch {
+        showToast('error', 'Network Error', 'Could not connect to server. Please try again.');
+    } finally {
+        setLoading('btn-confirm-delete', false);
+    }
+});
+
+// ─── Helper: Count ───────────────────────────────────────────────────────────
+function updateCount(delta) {
+    const rows = document.querySelectorAll('.user-row');
+    const total = rows.length;
+    const countEl = document.getElementById('table-count');
+    if (countEl) {
+        countEl.textContent = `Showing ${total} user${total !== 1 ? 's' : ''}`;
+    }
+}
+</script>
+{% endblock %}

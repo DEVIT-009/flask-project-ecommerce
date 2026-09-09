@@ -1,0 +1,924 @@
+{% extends "admin/index.html" %}
+
+{% block title %}Bookit Admin — Audit Logs{% endblock %}
+
+{% block page_title %}Audit Logs{% endblock %}
+{% block page_subtitle %}System activity, security events, and audit trail.{% endblock %}
+
+{% block content %}
+
+<!-- ═══════════════════════ TOAST NOTIFICATION CONTAINER ═══════════════════════ -->
+<div id="toast-container" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2.5 max-w-sm pointer-events-none"></div>
+
+<!-- ═══════════════════════ STATS CARDS ═══════════════════════ -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Total Logs -->
+    <div class="card bg-base-100 shadow-sm border border-base-content/10 hover:shadow-md transition-all">
+        <div class="card-body p-4 sm:p-5">
+            <div class="flex items-center justify-between gap-3">
+                <div class="space-y-1 text-left">
+                    <p class="text-xs font-semibold text-base-content/50 uppercase tracking-wider">Total Logs</p>
+                    <h3 class="text-3xl font-black text-base-content tracking-tight">{{ stats.total }}</h3>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-[24px]">receipt_long</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Logs -->
+    <div class="card bg-base-100 shadow-sm border border-base-content/10 hover:shadow-md transition-all">
+        <div class="card-body p-4 sm:p-5">
+            <div class="flex items-center justify-between gap-3">
+                <div class="space-y-1 text-left">
+                    <p class="text-xs font-semibold text-base-content/50 uppercase tracking-wider">Info Events</p>
+                    <h3 class="text-3xl font-black text-info tracking-tight">{{ stats.info }}</h3>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-info/10 text-info flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-[24px]">info</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Warning Logs -->
+    <div class="card bg-base-100 shadow-sm border border-base-content/10 hover:shadow-md transition-all">
+        <div class="card-body p-4 sm:p-5">
+            <div class="flex items-center justify-between gap-3">
+                <div class="space-y-1 text-left">
+                    <p class="text-xs font-semibold text-base-content/50 uppercase tracking-wider">Warnings & Limits</p>
+                    <h3 class="text-3xl font-black text-warning tracking-tight">{{ stats.warning }}</h3>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-warning/10 text-warning flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-[24px]">warning</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Logs -->
+    <div class="card bg-base-100 shadow-sm border border-base-content/10 hover:shadow-md transition-all">
+        <div class="card-body p-4 sm:p-5">
+            <div class="flex items-center justify-between gap-3">
+                <div class="space-y-1 text-left">
+                    <p class="text-xs font-semibold text-base-content/50 uppercase tracking-wider">System Errors</p>
+                    <h3 class="text-3xl font-black text-error tracking-tight">{{ stats.error }}</h3>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-error/10 text-error flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-[24px]">error</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════ TOOLBAR & FILTER CARD ═══════════════════════ -->
+<div class="card bg-base-100 shadow-sm border border-base-content/10 p-5 space-y-4">
+    <div class="flex items-center justify-between gap-4 flex-wrap">
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-[20px]">filter_alt</span>
+            <h4 class="font-bold text-sm text-base-content">Filter & Search Logs</h4>
+        </div>
+        <div class="flex items-center gap-2">
+            <!-- Clear Logs Button -->
+            <button type="button"
+                    onclick="openClearLogsModal()"
+                    class="btn btn-soft btn-error btn-xs gap-1 font-medium"
+                    title="Clean up or purge log entries">
+                <span class="material-symbols-outlined text-[15px]">delete_sweep</span>
+                Cleanup Logs
+            </button>
+            <!-- Reload Page Button -->
+            <button type="button"
+                    onclick="window.location.reload()"
+                    class="btn btn-soft btn-secondary btn-xs gap-1"
+                    title="Refresh log table">
+                <span class="material-symbols-outlined text-[15px]">refresh</span>
+                Refresh
+            </button>
+        </div>
+    </div>
+
+    <form method="GET" action="{{ url_for('admin_routes.logs_view') }}" id="log-filter-form" class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-3">
+            <!-- Search Text -->
+            <div class="xl:col-span-2">
+                <label class="block text-[11px] font-semibold text-base-content/60 mb-1">Search</label>
+                <div class="relative">
+                    <input type="text"
+                           name="q"
+                           value="{{ filters.q or '' }}"
+                           placeholder="Search action, IP, endpoint..."
+                           class="input input-sm w-full bg-base-200/40 border border-base-content/20 rounded-xl text-xs pl-8 focus:border-primary focus:bg-base-100" />
+                    <span class="material-symbols-outlined absolute left-2.5 top-2 text-base-content/40 text-[16px]">search</span>
+                </div>
+            </div>
+
+            <!-- Severity Filter -->
+            <div>
+                <label class="block text-[11px] font-semibold text-base-content/60 mb-1">Severity</label>
+                <select name="severity" class="select select-sm w-full bg-base-200/40 border border-base-content/20 rounded-xl text-xs focus:border-primary focus:bg-base-100">
+                    <option value="" {{ 'selected' if not filters.severity }}>All</option>
+                    <option value="INFO" {{ 'selected' if filters.severity == 'INFO' }}>INFO</option>
+                    <option value="WARNING" {{ 'selected' if filters.severity == 'WARNING' }}>WARNING</option>
+                    <option value="ERROR" {{ 'selected' if filters.severity == 'ERROR' }}>ERROR</option>
+                </select>
+            </div>
+
+            <!-- Module Filter -->
+            <div>
+                <label class="block text-[11px] font-semibold text-base-content/60 mb-1">Module</label>
+                <select name="module" class="select select-sm w-full bg-base-200/40 border border-base-content/20 rounded-xl text-xs focus:border-primary focus:bg-base-100">
+                    <option value="" {{ 'selected' if not filters.module }}>All</option>
+                    <option value="AUTH" {{ 'selected' if filters.module == 'AUTH' }}>AUTH</option>
+                    <option value="USERS" {{ 'selected' if filters.module == 'USERS' }}>USERS</option>
+                    <option value="RATE_LIMIT" {{ 'selected' if filters.module == 'RATE_LIMIT' }}>RATE_LIMIT</option>
+                    <option value="SYSTEM" {{ 'selected' if filters.module == 'SYSTEM' }}>SYSTEM</option>
+                    <option value="LOGS" {{ 'selected' if filters.module == 'LOGS' }}>LOGS</option>
+                </select>
+            </div>
+
+            <!-- HTTP Method Filter -->
+            <div>
+                <label class="block text-[11px] font-semibold text-base-content/60 mb-1">Method</label>
+                <select name="method" class="select select-sm w-full bg-base-200/40 border border-base-content/20 rounded-xl text-xs focus:border-primary focus:bg-base-100">
+                    <option value="" {{ 'selected' if not filters.method }}>All</option>
+                    <option value="GET" {{ 'selected' if filters.method == 'GET' }}>GET</option>
+                    <option value="POST" {{ 'selected' if filters.method == 'POST' }}>POST</option>
+                    <option value="PUT" {{ 'selected' if filters.method == 'PUT' }}>PUT</option>
+                    <option value="DELETE" {{ 'selected' if filters.method == 'DELETE' }}>DELETE</option>
+                </select>
+            </div>
+
+            <!-- Status Code Filter -->
+            <div>
+                <label class="block text-[11px] font-semibold text-base-content/60 mb-1">Status Code</label>
+                <select name="status_code" class="select select-sm w-full bg-base-200/40 border border-base-content/20 rounded-xl text-xs focus:border-primary focus:bg-base-100">
+                    <option value="" {{ 'selected' if not filters.status_code }}>All</option>
+                    <option value="200" {{ 'selected' if filters.status_code == '200' }}>200 OK</option>
+                    <option value="201" {{ 'selected' if filters.status_code == '201' }}>201 Created</option>
+                    <option value="400" {{ 'selected' if filters.status_code == '400' }}>400 Bad Request</option>
+                    <option value="401" {{ 'selected' if filters.status_code == '401' }}>401 Unauthorized</option>
+                    <option value="403" {{ 'selected' if filters.status_code == '403' }}>403 Forbidden</option>
+                    <option value="404" {{ 'selected' if filters.status_code == '404' }}>404 Not Found</option>
+                    <option value="429" {{ 'selected' if filters.status_code == '429' }}>429 Too Many</option>
+                    <option value="500" {{ 'selected' if filters.status_code == '500' }}>500 Server Error</option>
+                </select>
+            </div>
+
+            <!-- User Filter -->
+            <div>
+                <label class="block text-[11px] font-semibold text-base-content/60 mb-1">User</label>
+                <select name="user_id" class="select select-sm w-full bg-base-200/40 border border-base-content/20 rounded-xl text-xs focus:border-primary focus:bg-base-100">
+                    <option value="" {{ 'selected' if not filters.user_id }}>All Users</option>
+                    {% for u in users %}
+                        <option value="{{ u.id }}" {{ 'selected' if filters.user_id == u.id }}>{{ u.name }} (ID: {{ u.id }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Date Range From & To -->
+            <div>
+                <label class="block text-[11px] font-semibold text-base-content/60 mb-1">From Date</label>
+                <input type="date"
+                       name="from_date"
+                       value="{{ filters.from_date or '' }}"
+                       class="input input-sm w-full bg-base-200/40 border border-base-content/20 rounded-xl text-xs focus:border-primary focus:bg-base-100" />
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between gap-4 pt-2 border-t border-base-content/5 flex-wrap">
+            <div class="flex items-center gap-3">
+                <label class="text-[11px] font-semibold text-base-content/60">To Date:</label>
+                <input type="date"
+                       name="to_date"
+                       value="{{ filters.to_date or '' }}"
+                       class="input input-sm bg-base-200/40 border border-base-content/20 rounded-xl text-xs focus:border-primary focus:bg-base-100" />
+                
+                <label class="text-[11px] font-semibold text-base-content/60 ml-2">Per page:</label>
+                <select name="per_page" class="select select-sm bg-base-200/40 border border-base-content/20 rounded-xl text-xs focus:border-primary focus:bg-base-100">
+                    <option value="10" {{ 'selected' if filters.per_page == 10 }}>10</option>
+                    <option value="20" {{ 'selected' if filters.per_page == 20 or not filters.per_page }}>20</option>
+                    <option value="50" {{ 'selected' if filters.per_page == 50 }}>50</option>
+                    <option value="100" {{ 'selected' if filters.per_page == 100 }}>100</option>
+                </select>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <a href="{{ url_for('admin_routes.logs_view') }}" class="btn btn-soft btn-secondary btn-sm text-xs rounded-xl">
+                    Reset
+                </a>
+                <button type="submit" class="btn btn-primary btn-sm text-xs gap-1 shadow-md shadow-primary/20 rounded-xl font-semibold">
+                    <span class="material-symbols-outlined text-[16px]">search</span>
+                    Apply Filters
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- ═══════════════════════ LOGS TABLE ═══════════════════════ -->
+<div class="card bg-base-100 shadow-sm border border-base-content/10 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="table table-sm w-full" id="logs-table">
+            <thead>
+                <tr class="text-[11px] uppercase tracking-wider text-base-content/50 bg-base-200/50 border-b border-base-content/10">
+                    <th class="w-14 px-4 py-3 font-semibold">#</th>
+                    <th class="font-semibold py-3">Timestamp</th>
+                    <th class="font-semibold py-3">User</th>
+                    <th class="font-semibold py-3">Action</th>
+                    <th class="font-semibold py-3">Module</th>
+                    <th class="font-semibold py-3">Severity</th>
+                    <th class="font-semibold py-3">Method</th>
+                    <th class="font-semibold py-3">Endpoint</th>
+                    <th class="font-semibold py-3">Status</th>
+                    <th class="font-semibold py-3">IP Address</th>
+                    <th class="font-semibold py-3 text-right sticky right-0 bg-base-200/80 backdrop-blur-md px-4 w-28">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="logs-tbody" class="text-xs divide-y divide-base-content/5">
+                {% if logs %}
+                    {% for log in logs %}
+                    <tr class="hover:bg-base-200/40 transition-colors" id="log-row-{{ log.id }}">
+                        <!-- ID -->
+                        <td class="px-4 py-3 text-base-content/40 font-mono text-[11px]">{{ log.id }}</td>
+                        
+                        <!-- Created At -->
+                        <td class="py-3 text-base-content/70 font-mono text-[11px] whitespace-nowrap">
+                            {{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') if log.created_at else '—' }}
+                        </td>
+
+                        <!-- User -->
+                        <td class="py-3">
+                            {% if log.user %}
+                                <div class="flex items-center gap-2">
+                                    <div class="avatar">
+                                        <div class="w-6 h-6 rounded-full overflow-hidden bg-base-300 shrink-0">
+                                            <img src="{{ url_for('static', filename='assets/user-img/' + (log.user.profile_thumb if log.user.profile else 'default.svg')) }}"
+                                                 alt="{{ log.user.name }}"
+                                                 class="w-full h-full object-cover"
+                                                 onerror="this.onerror=null;this.src='{{ url_for('static', filename='assets/user-img/default.svg') }}';" />
+                                        </div>
+                                    </div>
+                                    <span class="font-semibold text-base-content text-xs truncate max-w-[120px]" title="{{ log.user.name }}">
+                                        {{ log.user.name }}
+                                    </span>
+                                </div>
+                            {% elif log.user_id %}
+                                <span class="badge badge-neutral badge-xs font-mono">ID: {{ log.user_id }}</span>
+                            {% else %}
+                                <span class="text-base-content/40 italic font-mono text-[11px]">System</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Action -->
+                        <td class="py-3 font-semibold text-base-content">
+                            <span class="badge badge-neutral badge-sm badge-outline font-mono text-[10px]">
+                                {{ log.action }}
+                            </span>
+                        </td>
+
+                        <!-- Module -->
+                        <td class="py-3">
+                            <span class="text-[11px] font-medium text-base-content/70">{{ log.module }}</span>
+                        </td>
+
+                        <!-- Severity -->
+                        <td class="py-3">
+                            {% if log.severity == 'ERROR' %}
+                                <span class="badge badge-error badge-sm badge-soft font-semibold text-[10px] gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-error"></span> ERROR
+                                </span>
+                            {% elif log.severity == 'WARNING' %}
+                                <span class="badge badge-warning badge-sm badge-soft font-semibold text-[10px] gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-warning"></span> WARNING
+                                </span>
+                            {% else %}
+                                <span class="badge badge-info badge-sm badge-soft font-semibold text-[10px] gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-info"></span> INFO
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Method -->
+                        <td class="py-3 font-mono text-[11px]">
+                            {% if log.method == 'GET' %}
+                                <span class="text-success font-bold">GET</span>
+                            {% elif log.method == 'POST' %}
+                                <span class="text-primary font-bold">POST</span>
+                            {% elif log.method == 'PUT' %}
+                                <span class="text-warning font-bold">PUT</span>
+                            {% elif log.method == 'DELETE' %}
+                                <span class="text-error font-bold">DEL</span>
+                            {% else %}
+                                <span class="text-base-content/40">{{ log.method or '—' }}</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Endpoint -->
+                        <td class="py-3 font-mono text-[11px] text-base-content/80 truncate max-w-xs" title="{{ log.endpoint }}">
+                            {{ log.endpoint or '—' }}
+                        </td>
+
+                        <!-- Status Code -->
+                        <td class="py-3 font-mono text-[11px]">
+                            {% if log.status_code %}
+                                {% if log.status_code < 300 %}
+                                    <span class="badge badge-success badge-xs font-mono font-bold">{{ log.status_code }}</span>
+                                {% elif log.status_code < 400 %}
+                                    <span class="badge badge-info badge-xs font-mono font-bold">{{ log.status_code }}</span>
+                                {% elif log.status_code < 500 %}
+                                    <span class="badge badge-warning badge-xs font-mono font-bold">{{ log.status_code }}</span>
+                                {% else %}
+                                    <span class="badge badge-error badge-xs font-mono font-bold">{{ log.status_code }}</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-base-content/30">—</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- IP Address -->
+                        <td class="py-3 font-mono text-[11px] text-base-content/60 whitespace-nowrap">
+                            {{ log.ip_address or '—' }}
+                        </td>
+
+                        <!-- Sticky Actions -->
+                        <td class="sticky right-0 bg-base-100/95 backdrop-blur-md px-4 py-3 text-right">
+                            <div class="flex items-center justify-end gap-1.5">
+                                <button type="button"
+                                        onclick="openDetailModal({{ log.id }})"
+                                        class="btn btn-primary btn-xs btn-square"
+                                        title="View Details & JSON Payload">
+                                    <span class="material-symbols-outlined text-[15px]">visibility</span>
+                                </button>
+                                <button type="button"
+                                        onclick="openDeleteSingleModal({{ log.id }})"
+                                        class="btn btn-error btn-xs btn-square"
+                                        title="Delete Log">
+                                    <span class="material-symbols-outlined text-[15px]">delete</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="11" class="py-12 text-center text-base-content/40">
+                            <span class="material-symbols-outlined text-4xl block mx-auto mb-2 text-base-content/20">find_in_page</span>
+                            <p class="font-medium text-sm">No audit logs found matching the current criteria.</p>
+                            <p class="text-xs text-base-content/30 mt-1">Try relaxing search terms or filter ranges.</p>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════ PAGINATION ═══════════════════════ -->
+    <div class="px-5 py-4 bg-base-200/30 border-t border-base-content/10 flex items-center justify-between gap-4 flex-wrap text-xs">
+        <div class="text-base-content/60">
+            Showing
+            <span class="font-bold text-base-content">{{ (meta.page - 1) * meta.per_page + 1 if total > 0 else 0 }}</span>
+            to
+            <span class="font-bold text-base-content">{{ [meta.page * meta.per_page, total] | min }}</span>
+            of
+            <span class="font-bold text-base-content">{{ total }}</span>
+            logs
+        </div>
+
+        {% if meta.pages > 1 %}
+        <div class="flex items-center gap-1.5">
+            <!-- Previous Button -->
+            {% if meta.has_prev %}
+                <a href="{{ url_for('admin_routes.logs_view', page=meta.prev_num, q=filters.q, severity=filters.severity, action=filters.action, module=filters.module, method=filters.method, status_code=filters.status_code, user_id=filters.user_id, from_date=filters.from_date, to_date=filters.to_date, per_page=filters.per_page) }}"
+                   class="btn btn-soft btn-secondary btn-xs rounded-lg gap-1">
+                    <span class="material-symbols-outlined text-[14px]">chevron_left</span>
+                    Prev
+                </a>
+            {% else %}
+                <button type="button" disabled class="btn btn-soft btn-secondary btn-xs rounded-lg opacity-40 cursor-not-allowed">
+                    <span class="material-symbols-outlined text-[14px]">chevron_left</span>
+                    Prev
+                </button>
+            {% endif %}
+
+            <!-- Page Number Badges -->
+            <div class="flex items-center gap-1">
+                {% for p in range(1, meta.pages + 1) %}
+                    {% if p == meta.page %}
+                        <span class="btn btn-primary btn-xs rounded-lg font-bold min-w-[28px]">{{ p }}</span>
+                    {% elif p == 1 or p == meta.pages or (p >= meta.page - 2 and p <= meta.page + 2) %}
+                        <a href="{{ url_for('admin_routes.logs_view', page=p, q=filters.q, severity=filters.severity, action=filters.action, module=filters.module, method=filters.method, status_code=filters.status_code, user_id=filters.user_id, from_date=filters.from_date, to_date=filters.to_date, per_page=filters.per_page) }}"
+                           class="btn btn-soft btn-secondary btn-xs rounded-lg min-w-[28px]">{{ p }}</a>
+                    {% elif p == meta.page - 3 or p == meta.page + 3 %}
+                        <span class="text-base-content/40 px-1">…</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <!-- Next Button -->
+            {% if meta.has_next %}
+                <a href="{{ url_for('admin_routes.logs_view', page=meta.next_num, q=filters.q, severity=filters.severity, action=filters.action, module=filters.module, method=filters.method, status_code=filters.status_code, user_id=filters.user_id, from_date=filters.from_date, to_date=filters.to_date, per_page=filters.per_page) }}"
+                   class="btn btn-soft btn-secondary btn-xs rounded-lg gap-1">
+                    Next
+                    <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+                </a>
+            {% else %}
+                <button type="button" disabled class="btn btn-soft btn-secondary btn-xs rounded-lg opacity-40 cursor-not-allowed">
+                    Next
+                    <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+                </button>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+
+<!-- ══════════════════ FLYONUI MODAL: LOG DETAIL & JSON VIEWER ═══════════════════ -->
+<div id="modal-log-detail" class="overlay modal overlay-open:opacity-100 modal-middle hidden" role="dialog" tabindex="-1">
+    <div class="modal-dialog modal-dialog-lg">
+        <div class="modal-content border border-base-content/10 bg-base-100 shadow-2xl rounded-2xl overflow-hidden max-w-3xl w-full">
+            
+            <!-- Header -->
+            <div class="modal-header px-6 py-4 border-b border-base-content/10 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[20px]">code</span>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="modal-title font-bold text-sm text-base-content">Log Entry #<span id="detail-id"></span></h3>
+                            <span id="detail-severity-badge"></span>
+                        </div>
+                        <p class="text-[11px] text-base-content/40" id="detail-timestamp"></p>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-text btn-circle btn-xs text-base-content/60 hover:text-base-content" onclick="closeModal('modal-log-detail')">
+                    <span class="material-symbols-outlined text-[18px]">close</span>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+                
+                <!-- Overview Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-base-200/40 rounded-xl border border-base-content/10 text-xs">
+                    <div>
+                        <span class="text-base-content/40 block text-[10px] uppercase font-bold tracking-wider">Action</span>
+                        <span class="font-mono font-bold text-base-content" id="detail-action"></span>
+                    </div>
+                    <div>
+                        <span class="text-base-content/40 block text-[10px] uppercase font-bold tracking-wider">Module</span>
+                        <span class="font-semibold text-base-content" id="detail-module"></span>
+                    </div>
+                    <div>
+                        <span class="text-base-content/40 block text-[10px] uppercase font-bold tracking-wider">HTTP Method</span>
+                        <span class="font-mono font-bold text-base-content" id="detail-method"></span>
+                    </div>
+                    <div>
+                        <span class="text-base-content/40 block text-[10px] uppercase font-bold tracking-wider">Status Code</span>
+                        <span class="font-mono font-bold text-base-content" id="detail-status"></span>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <span class="text-base-content/40 block text-[10px] uppercase font-bold tracking-wider">User</span>
+                        <span class="font-medium text-base-content" id="detail-user"></span>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <span class="text-base-content/40 block text-[10px] uppercase font-bold tracking-wider">IP Address</span>
+                        <span class="font-mono text-base-content" id="detail-ip"></span>
+                    </div>
+                    <div class="col-span-2 sm:col-span-4">
+                        <span class="text-base-content/40 block text-[10px] uppercase font-bold tracking-wider">Endpoint</span>
+                        <span class="font-mono text-primary break-all" id="detail-endpoint"></span>
+                    </div>
+                    <div class="col-span-2 sm:col-span-4" id="detail-desc-wrapper">
+                        <span class="text-base-content/40 block text-[10px] uppercase font-bold tracking-wider">Description</span>
+                        <span class="text-base-content/80 font-medium" id="detail-description"></span>
+                    </div>
+                </div>
+
+                <!-- User Agent -->
+                <div>
+                    <span class="text-xs font-bold text-base-content/70 mb-1.5 block">User-Agent Header</span>
+                    <div class="bg-base-200/50 p-2.5 rounded-xl border border-base-content/10 font-mono text-[11px] text-base-content/70 break-all" id="detail-user-agent">
+                        —
+                    </div>
+                </div>
+
+                <!-- Request Data JSON Viewer -->
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-xs font-bold text-base-content/80 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[16px] text-primary">data_object</span>
+                            Request Data (JSON)
+                        </span>
+                        <button type="button"
+                                id="btn-copy-req"
+                                onclick="copyDetailPayload('detail-req-json', 'btn-copy-req')"
+                                class="btn btn-soft btn-secondary btn-xs gap-1 text-[10px]">
+                            <span class="material-symbols-outlined text-[13px]">content_copy</span>
+                            Copy JSON
+                        </button>
+                    </div>
+                    <div id="detail-req-empty" class="p-3 bg-base-200/30 rounded-xl border border-base-content/10 text-xs text-base-content/40 italic hidden">
+                        No request JSON payload stored.
+                    </div>
+                    <pre id="detail-req-json" class="bg-base-300/40 p-3.5 rounded-xl font-mono text-xs overflow-x-auto text-base-content border border-base-content/10 max-h-60 leading-relaxed select-all"></pre>
+                </div>
+
+                <!-- Response Data JSON Viewer -->
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-xs font-bold text-base-content/80 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[16px] text-info">reply</span>
+                            Response Data (JSON)
+                        </span>
+                        <button type="button"
+                                id="btn-copy-res"
+                                onclick="copyDetailPayload('detail-res-json', 'btn-copy-res')"
+                                class="btn btn-soft btn-secondary btn-xs gap-1 text-[10px]">
+                            <span class="material-symbols-outlined text-[13px]">content_copy</span>
+                            Copy JSON
+                        </button>
+                    </div>
+                    <div id="detail-res-empty" class="p-3 bg-base-200/30 rounded-xl border border-base-content/10 text-xs text-base-content/40 italic hidden">
+                        No response JSON payload stored.
+                    </div>
+                    <pre id="detail-res-json" class="bg-base-300/40 p-3.5 rounded-xl font-mono text-xs overflow-x-auto text-base-content border border-base-content/10 max-h-60 leading-relaxed select-all"></pre>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer px-6 py-3.5 bg-base-200/30 border-t border-base-content/10 flex items-center justify-end">
+                <button type="button" onclick="closeModal('modal-log-detail')" class="btn btn-soft btn-secondary btn-sm text-xs rounded-xl">
+                    Close
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- ══════════════════ FLYONUI MODAL: CLEAR / CLEANUP LOGS ═══════════════════ -->
+<div id="modal-clear-logs" class="overlay modal overlay-open:opacity-100 modal-middle hidden" role="dialog" tabindex="-1">
+    <div class="modal-dialog modal-dialog-md">
+        <div class="modal-content border border-base-content/10 bg-base-100 shadow-2xl rounded-2xl overflow-hidden">
+            
+            <div class="modal-header px-5 py-4 border-b border-base-content/10 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-error/15 text-error flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[18px]">delete_sweep</span>
+                    </div>
+                    <div>
+                        <h3 class="modal-title font-bold text-sm text-base-content">Cleanup Audit Logs</h3>
+                        <p class="text-[11px] text-base-content/40">Purge old records to manage storage</p>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-text btn-circle btn-xs text-base-content/60 hover:text-base-content" onclick="closeModal('modal-clear-logs')">
+                    <span class="material-symbols-outlined text-[18px]">close</span>
+                </button>
+            </div>
+
+            <form id="form-clear-logs" onsubmit="submitClearLogs(event)">
+                <div class="modal-body p-5 space-y-4">
+                    <p class="text-xs text-base-content/70">
+                        Please choose which logs to remove. This action is permanent and cannot be undone.
+                    </p>
+
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 p-3 bg-base-200/40 rounded-xl border border-base-content/10 cursor-pointer hover:bg-base-200/70 transition-colors">
+                            <input type="radio" name="clear_range" value="90" class="radio radio-primary radio-sm" />
+                            <div class="text-xs">
+                                <span class="font-bold text-base-content block">Older than 90 days</span>
+                                <span class="text-base-content/50 text-[11px]">Recommended retention for compliance</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center gap-3 p-3 bg-base-200/40 rounded-xl border border-base-content/10 cursor-pointer hover:bg-base-200/70 transition-colors">
+                            <input type="radio" name="clear_range" value="30" class="radio radio-primary radio-sm" checked />
+                            <div class="text-xs">
+                                <span class="font-bold text-base-content block">Older than 30 days</span>
+                                <span class="text-base-content/50 text-[11px]">Clean up standard historical records</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center gap-3 p-3 bg-base-200/40 rounded-xl border border-base-content/10 cursor-pointer hover:bg-base-200/70 transition-colors">
+                            <input type="radio" name="clear_range" value="7" class="radio radio-primary radio-sm" />
+                            <div class="text-xs">
+                                <span class="font-bold text-base-content block">Older than 7 days</span>
+                                <span class="text-base-content/50 text-[11px]">Keep only recent 1 week activity</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center gap-3 p-3 bg-error/5 rounded-xl border border-error/20 cursor-pointer hover:bg-error/10 transition-colors">
+                            <input type="radio" name="clear_range" value="all" class="radio radio-error radio-sm" />
+                            <div class="text-xs">
+                                <span class="font-bold text-error block">Purge ALL Logs</span>
+                                <span class="text-error/70 text-[11px]">Wipes the entire audit log database</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div id="clear-error" class="alert alert-error text-xs py-2 px-3 hidden rounded-lg"></div>
+                </div>
+
+                <div class="modal-footer px-5 py-3.5 bg-base-200/30 border-t border-base-content/10 flex items-center justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-clear-logs')" class="btn btn-soft btn-secondary btn-sm text-xs rounded-xl">Cancel</button>
+                    <button type="submit" id="btn-clear-submit" class="btn btn-error btn-sm text-xs gap-1 shadow-md shadow-error/20 rounded-xl font-semibold">
+                        <span class="material-symbols-outlined text-[16px]">check</span>
+                        Confirm Cleanup
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- ══════════════════ FLYONUI MODAL: DELETE SINGLE LOG ═══════════════════ -->
+<div id="modal-delete-log" class="overlay modal overlay-open:opacity-100 modal-middle hidden" role="dialog" tabindex="-1">
+    <div class="modal-dialog modal-dialog-sm">
+        <div class="modal-content border border-base-content/10 bg-base-100 shadow-2xl rounded-2xl overflow-hidden">
+            <div class="modal-body p-6 text-center space-y-4">
+                <div class="w-12 h-12 rounded-2xl bg-error/15 text-error flex items-center justify-center mx-auto">
+                    <span class="material-symbols-outlined text-[28px]">delete_forever</span>
+                </div>
+                <div>
+                    <h3 class="font-bold text-sm text-base-content">Delete Log Record</h3>
+                    <p class="text-xs text-base-content/60 mt-1">
+                        Are you sure you want to delete log #<span id="del-log-id" class="font-mono font-bold text-base-content"></span>? This action cannot be reversed.
+                    </p>
+                </div>
+                <div class="flex items-center justify-center gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modal-delete-log')" class="btn btn-soft btn-secondary btn-sm text-xs rounded-xl">
+                        Cancel
+                    </button>
+                    <button type="button" id="btn-confirm-delete-log" onclick="confirmDeleteSingleLog()" class="btn btn-error btn-sm text-xs rounded-xl font-semibold">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+// ─── Modal Open / Close Helpers ──────────────────────────────────────────────
+function openModal(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (window.HSOverlay && typeof window.HSOverlay.open === 'function') {
+        window.HSOverlay.open(el);
+    } else {
+        el.classList.remove('hidden');
+        el.classList.add('open');
+    }
+}
+
+function closeModal(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (window.HSOverlay && typeof window.HSOverlay.close === 'function') {
+        window.HSOverlay.close(el);
+    } else {
+        el.classList.add('hidden');
+        el.classList.remove('open');
+    }
+}
+
+// ─── Toast Notifications ─────────────────────────────────────────────────────
+function showToast(type, title, message = '') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `flex items-start gap-3 p-4 rounded-2xl shadow-xl border backdrop-blur-md transition-all duration-300 pointer-events-auto transform translate-x-10 opacity-0 bg-base-100/95 ${
+        type === 'success' ? 'border-success/30' :
+        type === 'error'   ? 'border-error/30' :
+        type === 'warning' ? 'border-warning/30' : 'border-info/30'
+    }`;
+
+    const iconName = type === 'success' ? 'check_circle' :
+                     type === 'error'   ? 'error' :
+                     type === 'warning' ? 'warning' : 'info';
+    const iconBg = type === 'success' ? 'bg-success/15 text-success' :
+                   type === 'error'   ? 'bg-error/15 text-error' :
+                   type === 'warning' ? 'bg-warning/15 text-warning' : 'bg-info/15 text-info';
+
+    toast.innerHTML = `
+        <div class="w-8 h-8 rounded-lg ${iconBg} flex items-center justify-center shrink-0 mt-0.5">
+            <span class="material-symbols-outlined text-[20px]">${iconName}</span>
+        </div>
+        <div class="flex-1 min-w-0">
+            <h4 class="text-xs font-bold text-base-content leading-tight">${title}</h4>
+            ${message ? `<p class="text-[11px] text-base-content/60 mt-0.5 leading-relaxed">${message}</p>` : ''}
+        </div>
+        <button type="button" class="text-base-content/40 hover:text-base-content transition-colors shrink-0 p-1" onclick="this.parentElement.remove()">
+            <span class="material-symbols-outlined text-[16px]">close</span>
+        </button>
+    `;
+
+    container.appendChild(toast);
+    requestAnimationFrame(() => {
+        toast.classList.remove('translate-x-10', 'opacity-0');
+        toast.classList.add('translate-x-0', 'opacity-100');
+    });
+
+    setTimeout(() => {
+        toast.classList.add('translate-x-10', 'opacity-0');
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+}
+
+// ─── Log Detail Modal ────────────────────────────────────────────────────────
+async function openDetailModal(logId) {
+    try {
+        const res = await fetch(`/admin/logs/${logId}`, {
+            headers: { 'Accept': 'application/json' }
+        });
+        if (!res.ok) throw new Error('Could not fetch log detail.');
+        const data = await res.json();
+
+        document.getElementById('detail-id').textContent = data.id;
+        document.getElementById('detail-timestamp').textContent = data.created_at || '—';
+        document.getElementById('detail-action').textContent = data.action || '—';
+        document.getElementById('detail-module').textContent = data.module || '—';
+        document.getElementById('detail-method').textContent = data.method || '—';
+        document.getElementById('detail-status').textContent = data.status_code || '—';
+        document.getElementById('detail-user').textContent = data.user_name ? `${data.user_name} (ID: ${data.user_id})` : (data.user_id ? `User ID: ${data.user_id}` : 'System');
+        document.getElementById('detail-ip').textContent = data.ip_address || '—';
+        document.getElementById('detail-endpoint').textContent = data.endpoint || '—';
+        document.getElementById('detail-description').textContent = data.description || '—';
+        document.getElementById('detail-user-agent').textContent = data.user_agent || '—';
+
+        // Severity badge
+        const badgeEl = document.getElementById('detail-severity-badge');
+        if (data.severity === 'ERROR') {
+            badgeEl.className = 'badge badge-error badge-xs font-bold';
+            badgeEl.textContent = 'ERROR';
+        } else if (data.severity === 'WARNING') {
+            badgeEl.className = 'badge badge-warning badge-xs font-bold';
+            badgeEl.textContent = 'WARNING';
+        } else {
+            badgeEl.className = 'badge badge-info badge-xs font-bold';
+            badgeEl.textContent = 'INFO';
+        }
+
+        // Request JSON formatting
+        const reqEmpty = document.getElementById('detail-req-empty');
+        const reqPre = document.getElementById('detail-req-json');
+        const btnCopyReq = document.getElementById('btn-copy-req');
+        if (data.request_data) {
+            try {
+                const parsed = typeof data.request_data === 'string' ? JSON.parse(data.request_data) : data.request_data;
+                reqPre.textContent = JSON.stringify(parsed, null, 2);
+            } catch (e) {
+                reqPre.textContent = data.request_data;
+            }
+            reqPre.classList.remove('hidden');
+            reqEmpty.classList.add('hidden');
+            btnCopyReq.classList.remove('hidden');
+        } else {
+            reqPre.textContent = '';
+            reqPre.classList.add('hidden');
+            reqEmpty.classList.remove('hidden');
+            btnCopyReq.classList.add('hidden');
+        }
+
+        // Response JSON formatting
+        const resEmpty = document.getElementById('detail-res-empty');
+        const resPre = document.getElementById('detail-res-json');
+        const btnCopyRes = document.getElementById('btn-copy-res');
+        if (data.response_data) {
+            try {
+                const parsed = typeof data.response_data === 'string' ? JSON.parse(data.response_data) : data.response_data;
+                resPre.textContent = JSON.stringify(parsed, null, 2);
+            } catch (e) {
+                resPre.textContent = data.response_data;
+            }
+            resPre.classList.remove('hidden');
+            resEmpty.classList.add('hidden');
+            btnCopyRes.classList.remove('hidden');
+        } else {
+            resPre.textContent = '';
+            resPre.classList.add('hidden');
+            resEmpty.classList.remove('hidden');
+            btnCopyRes.classList.add('hidden');
+        }
+
+        openModal('modal-log-detail');
+    } catch (err) {
+        showToast('error', 'Failed to load log', err.message);
+    }
+}
+
+function copyDetailPayload(targetPreId, btnId) {
+    const pre = document.getElementById(targetPreId);
+    if (!pre || !pre.textContent) return;
+
+    navigator.clipboard.writeText(pre.textContent).then(() => {
+        const btn = document.getElementById(btnId);
+        const origText = btn.innerHTML;
+        btn.innerHTML = `<span class="material-symbols-outlined text-[13px]">check</span> Copied!`;
+        btn.classList.replace('btn-secondary', 'btn-success');
+        setTimeout(() => {
+            btn.innerHTML = origText;
+            btn.classList.replace('btn-success', 'btn-secondary');
+        }, 1800);
+    });
+}
+
+// ─── Single Log Deletion ─────────────────────────────────────────────────────
+let targetDeleteLogId = null;
+
+function openDeleteSingleModal(logId) {
+    targetDeleteLogId = logId;
+    document.getElementById('del-log-id').textContent = logId;
+    openModal('modal-delete-log');
+}
+
+async function confirmDeleteSingleLog() {
+    if (!targetDeleteLogId) return;
+    const btn = document.getElementById('btn-confirm-delete-log');
+    btn.disabled = true;
+    btn.innerHTML = `<span class="loading loading-spinner loading-xs"></span> Deleting...`;
+
+    try {
+        const res = await fetch(`/admin/logs/${targetDeleteLogId}`, {
+            method: 'DELETE',
+            headers: { 'Accept': 'application/json' }
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to delete log.');
+
+        closeModal('modal-delete-log');
+        showToast('success', 'Log Deleted', `Log #${targetDeleteLogId} was successfully removed.`);
+        
+        // Remove row smoothly
+        const row = document.getElementById(`log-row-${targetDeleteLogId}`);
+        if (row) {
+            row.classList.add('opacity-0', 'transition-opacity');
+            setTimeout(() => row.remove(), 300);
+        }
+    } catch (err) {
+        showToast('error', 'Delete Failed', err.message);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Delete';
+        targetDeleteLogId = null;
+    }
+}
+
+// ─── Clear Logs Modal ────────────────────────────────────────────────────────
+function openClearLogsModal() {
+    document.getElementById('clear-error').classList.add('hidden');
+    openModal('modal-clear-logs');
+}
+
+async function submitClearLogs(e) {
+    e.preventDefault();
+    const selected = document.querySelector('input[name="clear_range"]:checked');
+    if (!selected) return;
+
+    const val = selected.value;
+    const days = val === 'all' ? null : parseInt(val, 10);
+
+    const btn = document.getElementById('btn-clear-submit');
+    btn.disabled = true;
+    btn.innerHTML = `<span class="loading loading-spinner loading-xs"></span> Purging...`;
+
+    try {
+        const res = await fetch('/admin/logs/clear', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ days: days })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to clear logs.');
+
+        closeModal('modal-clear-logs');
+        showToast('success', 'Cleanup Completed', data.message);
+        setTimeout(() => window.location.reload(), 800);
+    } catch (err) {
+        const errBox = document.getElementById('clear-error');
+        errBox.textContent = err.message;
+        errBox.classList.remove('hidden');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span class="material-symbols-outlined text-[16px]">check</span> Confirm Cleanup`;
+    }
+}
+</script>
+{% endblock %}

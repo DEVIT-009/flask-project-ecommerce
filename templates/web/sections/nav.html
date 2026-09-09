@@ -22,10 +22,17 @@
             Admin
         </a>
         <div class="join">
-            <button class="join-item btn btn-primary btn-gradient">
-                <span class="material-symbols-outlined">login</span>
-                Sign in
-            </button>
+            {% if current_user %}
+                <a href="{{ url_for('admin_routes.dashboard') }}" class="join-item btn btn-primary btn-gradient flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[18px]">dashboard</span>
+                    <span>Dashboard ({{ current_user.name.split()[0] }})</span>
+                </a>
+            {% else %}
+                <a href="{{ url_for('admin_routes.login') }}" class="join-item btn btn-primary btn-gradient flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[18px]">login</span>
+                    <span>Sign in</span>
+                </a>
+            {% endif %}
         </div>
     </div>
 </div>
