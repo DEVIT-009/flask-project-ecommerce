@@ -1,9 +1,9 @@
+from extensions import csrf
+from api import api_routes
 from flask import Flask, render_template, request, jsonify
 from config import Config
 from extensions import db, migrate, limiter
 
-from api.controllers.product_controller import product_controller
-from api.controllers.category_controller import category_controller
 from admin import admin_routes
 from web import web_routes
 from api.util.auth import load_current_user, auth_context_processor
@@ -11,6 +11,8 @@ from api.services.log_service import LogService
 
 app = Flask(__name__)
 app.config.from_object(Config)
+csrf.init_app(app)
+cors.init_app(app)
 
 db.init_app(app)
 migrate.init_app(app, db)
@@ -24,17 +26,14 @@ app.before_request(load_current_user)
 app.context_processor(auth_context_processor)
 
 # Register blueprints
-app.register_blueprint(product_controller)
-app.register_blueprint(category_controller)
-app.register_blueprint(web_routes)
-app.register_blueprint(admin_routes)
+app.register_blueprint(web_routes, url_prefix='')
+app.register_blueprint(api_routes, url_prefix='/api/v1')
+app.register_blueprint(admin_routes, url_prefix='/admin')
 
 
 # ─── Error Handlers ────────────────────────────────────────────────────────────
 @app.errorhandler(429)
 def handle_rate_limit_exceeded(e):
-    """Handle HTTP 429 Rate Limit Exceeded with audit logging."""
-    # Audit log rate limit event (with 5-second debounce)
     LogService.log(
         action="RATE_LIMIT",
         module="RATE_LIMIT",
@@ -65,7 +64,6 @@ def handle_rate_limit_exceeded(e):
 
 @app.errorhandler(403)
 def handle_forbidden(e):
-    """Handle HTTP 403 Forbidden."""
     is_ajax = (
         request.headers.get("X-Requested-With") == "XMLHttpRequest"
         or request.is_json
@@ -79,7 +77,6 @@ def handle_forbidden(e):
 
 @app.errorhandler(500)
 def handle_internal_server_error(e):
-    """Handle HTTP 500 Internal Server Error with audit logging."""
     LogService.log(
         action="ERROR",
         module="SYSTEM",
@@ -100,17 +97,12 @@ def handle_internal_server_error(e):
 
 @app.route("/429")
 def rate_limit_page():
-    """Direct route to preview or redirect to the 429 page."""
     return render_template("errors/429.html", retry_after=60), 429
 
-
-# CLI Commands
 @app.cli.command("seed")
 def seed():
-    """Seed database with default admin user."""
     from seed import seed_admin
     seed_admin()
-
 
 if __name__ == "__main__":
     app.run(debug=True)

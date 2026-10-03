@@ -1,8 +1,8 @@
 from flask import render_template, Blueprint, request
 
 from web import web_routes
-from templates.web.services import CategoryService
-from templates.web.services.product_service import ProductService
+from web.services import CategoryService
+from web.services.product_service import ProductService
 
 
 @web_routes.route('/')
@@ -62,8 +62,9 @@ def checkout():
 
 @web_routes.app_errorhandler(404)
 def error_404(e):
-    return render_template("web/error/error404.html")
+    return render_template("web/error/error404.html"), 404
 
 @web_routes.app_errorhandler(500)
 def error_500(e):
-    return render_template("web/error/error500.html")
+    return render_template("web/error/error500.html"), 500
+

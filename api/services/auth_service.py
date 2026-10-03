@@ -14,11 +14,6 @@ _DUMMY_HASH = generate_password_hash("dummy-timing-defense-pass")
 class AuthService:
     @staticmethod
     def authenticate(identifier: str, password: str) -> Tuple[Optional[User], Optional[str]]:
-        """
-        Authenticate user by identifier (email or username) and password.
-        Returns (user, None) on success or (None, error_message) on failure.
-        Always uses generic error messages to avoid user enumeration.
-        """
         if not identifier or not password:
             return None, "Please enter both username/email and password."
 

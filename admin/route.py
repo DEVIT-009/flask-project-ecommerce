@@ -16,20 +16,14 @@ logger = logging.getLogger(__name__)
 LOGIN_LIMIT = "5 per minute"
 ADMIN_LIMIT = "10 per minute"
 
-
 def _is_safe_redirect(url: str) -> bool:
-    """Validate that the redirect target is an internal relative URL."""
     if not url:
         return False
     return url.startswith("/") and not url.startswith("//") and not url.startswith("/\\")
 
-
-# ─── Auth: Login ───────────────────────────────────────────────────────────────
-@admin_routes.route("/admin/login", methods=["GET", "POST"])
 @admin_routes.route("/login", methods=["GET", "POST"])
 @limiter.limit(LOGIN_LIMIT, key_func=get_remote_address)
 def login():
-    # If already authenticated, redirect to dashboard or next parameter
     if AuthService.get_current_user() is not None:
         next_url = request.args.get("next")
         if next_url and _is_safe_redirect(next_url):
@@ -44,7 +38,6 @@ def login():
 
         user, error = AuthService.authenticate(identifier, password)
         if error:
-            # Audit log failed login (WARNING) — never store password
             LogService.log(
                 action="LOGIN",
                 module="AUTH",
@@ -62,7 +55,6 @@ def login():
             ), 401
 
         AuthService.login_user(user, remember=remember)
-        # Audit log successful login (INFO)
         LogService.log(
             action="LOGIN",
             module="AUTH",
@@ -81,9 +73,6 @@ def login():
     next_url = request.args.get("next", "")
     return render_template("admin/auth/login.html", next=next_url)
 
-
-# ─── Auth: Logout ──────────────────────────────────────────────────────────────
-@admin_routes.route("/admin/logout", methods=["GET", "POST"])
 @admin_routes.route("/logout", methods=["GET", "POST"])
 @limiter.exempt
 def logout():
@@ -93,7 +82,6 @@ def logout():
 
     AuthService.logout_user()
 
-    # Audit log logout (INFO)
     LogService.log(
         action="LOGOUT",
         module="AUTH",
@@ -108,15 +96,15 @@ def logout():
 
 
 # ─── Admin Root Redirect ───────────────────────────────────────────────────────
-@admin_routes.get("/admin")
-@admin_routes.get("/admin/")
+@admin_routes.get("")
+@admin_routes.get("/")
 @limiter.limit(ADMIN_LIMIT, key_func=get_user_id_or_ip)
 def admin_root():
     return redirect(url_for("admin_routes.dashboard"))
 
 
 # ─── Dashboard ─────────────────────────────────────────────────────────────────
-@admin_routes.get("/admin/dashboard")
+@admin_routes.get("/dashboard")
 @login_required
 @limiter.limit(ADMIN_LIMIT, key_func=get_user_id_or_ip)
 def dashboard():
@@ -124,7 +112,7 @@ def dashboard():
 
 
 # ─── Users — List page ─────────────────────────────────────────────────────────
-@admin_routes.get("/admin/users")
+@admin_routes.get("/users")
 @login_required
 @limiter.limit(ADMIN_LIMIT, key_func=get_user_id_or_ip)
 def users():
@@ -133,7 +121,7 @@ def users():
 
 
 # ─── Users — Create ────────────────────────────────────────────────────────────
-@admin_routes.post("/admin/users")
+@admin_routes.post("/users")
 @login_required
 @limiter.limit(ADMIN_LIMIT, key_func=get_user_id_or_ip)
 def create_user():
@@ -206,7 +194,7 @@ def create_user():
 
 
 # ─── Users — Fetch single (for edit modal) ─────────────────────────────────────
-@admin_routes.get("/admin/users/<int:user_id>")
+@admin_routes.get("/users/<int:user_id>")
 @login_required
 @limiter.limit(ADMIN_LIMIT, key_func=get_user_id_or_ip)
 def get_user(user_id):
@@ -215,7 +203,7 @@ def get_user(user_id):
 
 
 # ─── Users — Update ────────────────────────────────────────────────────────────
-@admin_routes.route("/admin/users/<int:user_id>", methods=["PUT", "POST"])
+@admin_routes.route("/users/<int:user_id>", methods=["PUT", "POST"])
 @login_required
 @limiter.limit(ADMIN_LIMIT, key_func=get_user_id_or_ip)
 def update_user(user_id):
@@ -317,7 +305,7 @@ def update_user(user_id):
 
 
 # ─── Users — Delete ────────────────────────────────────────────────────────────
-@admin_routes.delete("/admin/users/<int:user_id>")
+@admin_routes.delete("/users/<int:user_id>")
 @login_required
 @limiter.limit(ADMIN_LIMIT, key_func=get_user_id_or_ip)
 def delete_user(user_id):
@@ -353,7 +341,7 @@ def delete_user(user_id):
 
 
 # ─── Logs — List view & AJAX query ─────────────────────────────────────────────
-@admin_routes.get("/admin/logs")
+@admin_routes.get("/logs")
 @admin_required
 @limiter.limit(ADMIN_LIMIT, key_func=get_user_id_or_ip)
 def logs_view():
@@ -424,7 +412,7 @@ def logs_view():
 
 
 # ─── Logs — Single detail (for modal JSON viewer) ──────────────────────────────
-@admin_routes.get("/admin/logs/<int:log_id>")
+@admin_routes.get("/logs/<int:log_id>")
 @admin_required
 @limiter.limit(ADMIN_LIMIT, key_func=get_user_id_or_ip)
 def get_log_detail(log_id):
@@ -435,7 +423,7 @@ def get_log_detail(log_id):
 
 
 # ─── Logs — Delete single log ──────────────────────────────────────────────────
-@admin_routes.delete("/admin/logs/<int:log_id>")
+@admin_routes.delete("/logs/<int:log_id>")
 @admin_required
 @limiter.limit(ADMIN_LIMIT, key_func=get_user_id_or_ip)
 def delete_single_log(log_id):
@@ -446,7 +434,7 @@ def delete_single_log(log_id):
 
 
 # ─── Logs — Clear / Bulk cleanup ──────────────────────────────────────────────
-@admin_routes.post("/admin/logs/clear")
+@admin_routes.post("/logs/clear")
 @admin_required
 @limiter.limit(ADMIN_LIMIT, key_func=get_user_id_or_ip)
 def clear_all_logs():

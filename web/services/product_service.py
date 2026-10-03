@@ -1,6 +1,6 @@
 import requests
 
-BASE_API_URL = "http://127.0.0.1:5000/api/products"
+BASE_API_URL = "http://127.0.0.1:5000/api/v1/products"
 
 class ProductService:
 
@@ -9,8 +9,7 @@ class ProductService:
         response = requests.get(BASE_API_URL)
         if response.status_code in [200, 201]:
             products_json = response.json()
-            products_dict = products_json.get('data', [])
-            return products_dict
+            return products_json
         return []
 
     @staticmethod
